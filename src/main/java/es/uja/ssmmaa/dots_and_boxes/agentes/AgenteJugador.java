@@ -27,7 +27,7 @@ import es.uja.ssmmaa.curso1920.ontologia.juegoTablero.MovimientoEntregado;
 import es.uja.ssmmaa.curso1920.ontologia.juegoTablero.Partida;
 import es.uja.ssmmaa.dots_and_boxes.gui.ConsolaJFrame;
 import es.uja.ssmmaa.dots_and_boxes.project.Constantes.NombreServicio;
-import es.uja.ssmmaa.dots_and_boxes.tareas.TaskPropose_Jugador;
+import es.uja.ssmmaa.dots_and_boxes.tareas.TaskResponsePropose_Jugador;
 import es.uja.ssmmaa.dots_and_boxes.tareas.TasksJugador;
 import jade.content.ContentManager;
 import jade.content.lang.Codec;
@@ -183,7 +183,7 @@ public class AgenteJugador extends Agent implements SubscripcionDF, TasksJugador
                 MessageTemplate.MatchProtocol(FIPANames.InteractionProtocol.FIPA_PROPOSE),
                 MessageTemplate.MatchPerformative(ACLMessage.PROPOSE)
         );
-        addBehaviour(new TaskPropose_Jugador(this, template_RP));
+        addBehaviour(new TaskResponsePropose_Jugador(this, template_RP));
 
     }
 
