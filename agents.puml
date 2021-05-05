@@ -1,0 +1,58 @@
+@startuml sequence-diagram
+group Agentes
+    Monitor     -> Monitor      : Suscripción páginas amarillas 
+    Jugador     -> Jugador      : Suscripción páginas amarillas 
+    Organizador -> Organizador  : Suscripción páginas amarillas 
+    Tablero     -> Tablero      : Suscripción páginas amarillas 
+end
+
+/'
+group Definir productos del vendedor al inicio
+    Vendedor    -> Mercado      : addAllProductsFromASeller(seller_aid, products)
+    Vendedor    <- Mercado      : Response<Status>
+end
+
+group Actualizar lista de productos visibles
+    Mercado     <- Comprador    : getAllSellersAndProducts(buyer_aid)
+    Mercado     -> Comprador    : Response<Status>(Sellers, Products)
+end
+
+group CRUD (Create, Read, Update and Delete)
+    Vendedor    -> Mercado      : **addProductFromASeller(seller_aid, product)**
+    Vendedor    <- Mercado      : Response<Status>
+else
+    Vendedor    -> Mercado      : **updateProductFromASeller(seller_aid, product)**
+    Vendedor    <- Mercado      : Response<Status>
+else
+    Vendedor    -> Mercado      : **deleteProductFromASeller(seller_aid, product)**
+    Vendedor    <- Mercado      : Response<Status>
+else
+group Request Response<Status> puede ser cualquier caso de los siguientes casos:
+    Vendedor    <- Mercado      : NOT_UNDERSTOOD
+    Vendedor    <- Mercado      : AGREE
+    Vendedor    <- Mercado      : REFUSE
+end
+end
+
+'  ¿He de notificar a un comprador cuando otro comprador a hecho una puja menor? 
+group Pujar sobre un producto
+    Mercado     <-  Comprador   : bidProduct(buyer_aid, seller_aid, product_id, bid)
+    Vendedor    <-  Mercado     : bidProduct(buyer_aid, seller_aid, product_id, bid)
+    Vendedor    ->o Mercado     : Response<Status>
+    Mercado     ->  Comprador   : Response<Status>
+end
+
+group Actualizar Pujas
+    Comprador   -> Mercado      : subscribeBid(buyer_aid, product_id)
+    alt Status Bid
+        Mercado -> Comprador    : notifyBids(buyer_aid, product)
+        ' Mercado <- Comprador    : Response<Status>
+    end
+end
+
+group Cerrar Mercado 
+    Mercado     -> Comprador    : Cancelar Suscripción
+    Mercado     <- Comprador    : Response<Status>
+end
+'/
+@enduml
