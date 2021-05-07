@@ -18,7 +18,6 @@ import jade.content.Concept;
 import jade.content.lang.Codec;
 import jade.content.onto.OntologyException;
 import jade.core.Agent;
-import jade.core.behaviours.DataStore;
 import jade.domain.FIPAAgentManagement.NotUnderstoodException;
 import jade.domain.FIPAAgentManagement.RefuseException;
 import jade.lang.acl.ACLMessage;

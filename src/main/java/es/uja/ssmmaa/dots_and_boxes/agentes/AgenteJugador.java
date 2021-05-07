@@ -168,7 +168,7 @@ public class AgenteJugador extends Agent implements SubscripcionDF, TasksJugador
         // Para localiar a los agentes 
         DFAgentDescription template = new DFAgentDescription();
         ServiceDescription templateSd = new ServiceDescription();
-        templateSd.setType(SISTEMA.name());
+        templateSd.setType(Vocabulario.TipoServicio.JUGADOR.name());
         template.addServices(templateSd);
         addBehaviour(new TareaSubscripcionDF(this, template));
 
