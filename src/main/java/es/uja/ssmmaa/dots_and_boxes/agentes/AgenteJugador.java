@@ -14,17 +14,17 @@ import es.uja.ssmmaa.dots_and_boxes.tareas.SubscripcionDF;
 import es.uja.ssmmaa.dots_and_boxes.util.GestorSubscripciones;
 
 import com.google.gson.Gson;
-import es.uja.ssmmaa.curso1920.ontologia.Vocabulario;
-import es.uja.ssmmaa.curso1920.ontologia.Vocabulario.TipoJuego;
-import es.uja.ssmmaa.curso1920.ontologia.Vocabulario.TipoServicio;
+import es.uja.ssmmaa.ontologia.Vocabulario;
+import es.uja.ssmmaa.ontologia.Vocabulario.TipoJuego;
+import es.uja.ssmmaa.ontologia.Vocabulario.TipoServicio;
 //import es.uja.ssmmaa.curso1920.ontologia.tresEnRaya.TresEnRaya;
 
 import static es.uja.ssmmaa.dots_and_boxes.project.Constantes.TIME_OUT;
-import es.uja.ssmmaa.curso1920.ontologia.juegoTablero.EstadoPartida;
-import es.uja.ssmmaa.curso1920.ontologia.juegoTablero.Juego;
-import es.uja.ssmmaa.curso1920.ontologia.juegoTablero.Movimiento;
-import es.uja.ssmmaa.curso1920.ontologia.juegoTablero.MovimientoEntregado;
-import es.uja.ssmmaa.curso1920.ontologia.juegoTablero.Partida;
+import es.uja.ssmmaa.ontologia.juegoTablero.EstadoPartida;
+import es.uja.ssmmaa.ontologia.juegoTablero.Juego;
+import es.uja.ssmmaa.ontologia.juegoTablero.Movimiento;
+import es.uja.ssmmaa.ontologia.juegoTablero.MovimientoEntregado;
+import es.uja.ssmmaa.ontologia.juegoTablero.Partida;
 import es.uja.ssmmaa.dots_and_boxes.gui.ConsolaJFrame;
 import es.uja.ssmmaa.dots_and_boxes.project.Constantes.NombreServicio;
 import es.uja.ssmmaa.dots_and_boxes.tareas.TaskResponsePropose_Jugador;
@@ -118,7 +118,7 @@ public class AgenteJugador extends Agent implements SubscripcionDF, TasksJugador
         ServiceDescription sd = new ServiceDescription();
 
         sd.setType(TipoServicio.JUGADOR.name());
-        sd.setName(TipoJuego.TRES_EN_RAYA.name());
+        sd.setName(TipoJuego.ENCERRADO.name());
 
         dfd.addServices(sd);
         try {
@@ -154,7 +154,7 @@ public class AgenteJugador extends Agent implements SubscripcionDF, TasksJugador
         //Registro de la Ontología
         this.manager = new ContentManager();
         try {
-            this.ontology = Vocabulario.getOntology(TipoJuego.TRES_EN_RAYA);
+            this.ontology = Vocabulario.getOntology(TipoJuego.ENCERRADO);
             this.manager = (ContentManager) getContentManager();
             this.manager.registerLanguage(this.codec);
             this.manager.registerOntology(this.ontology);
@@ -187,7 +187,7 @@ public class AgenteJugador extends Agent implements SubscripcionDF, TasksJugador
 
     }
 
-    private void crearSubscripcion(Constantes.NombreServicio servicio, AID agente) {
+    private void requestSubscription(Constantes.NombreServicio servicio, AID agente) {
         this.addMsgConsola("crearSubscripcion: " + agente.getLocalName());
         ArrayList<AID> lista_subscritos = this.agentes_subscritos.getOrDefault(servicio, new ArrayList<>());
         lista_subscritos.add(agente);
@@ -230,7 +230,7 @@ public class AgenteJugador extends Agent implements SubscripcionDF, TasksJugador
                 break;
             case TABLERO:
 
-                crearSubscripcion(servicio, agente);
+                requestSubscription(servicio, agente);
                 lista.add(agente);
                 break;
         }
@@ -310,7 +310,7 @@ public class AgenteJugador extends Agent implements SubscripcionDF, TasksJugador
      * @param partida
      * @param estado
      */
-    private void EstadoPartida(int status, Partida partida, Vocabulario.Estado estado) {
+    private void estadoPartida(int status, Partida partida, Vocabulario.Estado estado) {
         this.addMsgConsola("EstadoPartida");
         // Contenido del mensaje representado en la ontología
         EstadoPartida estadoPartida = new EstadoPartida();
@@ -340,7 +340,7 @@ public class AgenteJugador extends Agent implements SubscripcionDF, TasksJugador
 //        addBehaviour(task);
     }
 
-    private void Propose_MovimientoEntregado(Partida partida, Movimiento movimiento) {
+    private void propose_MovimientoEntregado(Partida partida, Movimiento movimiento) {
         this.addMsgConsola("Propose_MovimientoEntregado");
         // Contenido del mensaje representado en la ontología
         MovimientoEntregado movimientoEntregado = new MovimientoEntregado();

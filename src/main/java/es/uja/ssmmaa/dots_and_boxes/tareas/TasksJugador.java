@@ -5,7 +5,6 @@
  */
 package es.uja.ssmmaa.dots_and_boxes.tareas;
 
-import es.uja.ssmmaa.curso1920.ontologia.Vocabulario.TipoJuego;
 import es.uja.ssmmaa.dots_and_boxes.util.GestorSubscripciones;
 import jade.content.ContentManager;
 import jade.content.onto.Ontology;

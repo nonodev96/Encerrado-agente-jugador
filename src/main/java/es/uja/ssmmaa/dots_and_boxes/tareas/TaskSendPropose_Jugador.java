@@ -5,7 +5,7 @@
  */
 package es.uja.ssmmaa.dots_and_boxes.tareas;
 
-import es.uja.ssmmaa.curso1920.ontologia.juegoTablero.CompletarPartida;
+import es.uja.ssmmaa.ontologia.juegoTablero.CompletarPartida;
 import jade.content.AgentAction;
 import jade.content.ContentElement;
 import jade.content.ContentManager;

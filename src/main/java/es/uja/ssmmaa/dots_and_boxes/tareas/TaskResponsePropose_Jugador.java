@@ -5,13 +5,13 @@
  */
 package es.uja.ssmmaa.dots_and_boxes.tareas;
 
-import es.uja.ssmmaa.curso1920.ontologia.Vocabulario;
-import es.uja.ssmmaa.curso1920.ontologia.Vocabulario.Modo;
-import es.uja.ssmmaa.curso1920.ontologia.juegoTablero.InfoJuego;
-import es.uja.ssmmaa.curso1920.ontologia.juegoTablero.Juego;
-import es.uja.ssmmaa.curso1920.ontologia.juegoTablero.JuegoAceptado;
-import es.uja.ssmmaa.curso1920.ontologia.juegoTablero.Justificacion;
-import es.uja.ssmmaa.curso1920.ontologia.juegoTablero.ProponerJuego;
+import es.uja.ssmmaa.ontologia.Vocabulario;
+import es.uja.ssmmaa.ontologia.Vocabulario.Modo;
+import es.uja.ssmmaa.ontologia.juegoTablero.InfoJuego;
+import es.uja.ssmmaa.ontologia.juegoTablero.Juego;
+import es.uja.ssmmaa.ontologia.juegoTablero.JuegoAceptado;
+import es.uja.ssmmaa.ontologia.juegoTablero.Justificacion;
+import es.uja.ssmmaa.ontologia.juegoTablero.ProponerJuego;
 import es.uja.ssmmaa.dots_and_boxes.agentes.AgenteJugador;
 import es.uja.ssmmaa.dots_and_boxes.util.GsonUtil;
 import jade.content.Concept;
