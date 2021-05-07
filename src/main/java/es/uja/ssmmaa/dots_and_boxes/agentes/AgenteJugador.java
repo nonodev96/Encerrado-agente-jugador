@@ -5,8 +5,6 @@
  */
 package es.uja.ssmmaa.dots_and_boxes.agentes;
 
-import static es.uja.ssmmaa.dots_and_boxes.project.Constantes.NombreServicio.JUGADOR;
-import static es.uja.ssmmaa.dots_and_boxes.project.Constantes.TipoServicio.SISTEMA;
 import es.uja.ssmmaa.dots_and_boxes.project.Constantes;
 import es.uja.ssmmaa.dots_and_boxes.tareas.TareaSubscripcionDF;
 import es.uja.ssmmaa.dots_and_boxes.tareas.SubscripcionDF;
@@ -26,7 +24,6 @@ import es.uja.ssmmaa.ontologia.juegoTablero.Movimiento;
 import es.uja.ssmmaa.ontologia.juegoTablero.MovimientoEntregado;
 import es.uja.ssmmaa.ontologia.juegoTablero.Partida;
 import es.uja.ssmmaa.dots_and_boxes.gui.ConsolaJFrame;
-import es.uja.ssmmaa.dots_and_boxes.project.Constantes.NombreServicio;
 import es.uja.ssmmaa.dots_and_boxes.tareas.TaskResponsePropose_Jugador;
 import es.uja.ssmmaa.dots_and_boxes.tareas.TasksJugador;
 import jade.content.ContentManager;
@@ -92,8 +89,8 @@ public class AgenteJugador extends Agent implements SubscripcionDF, TasksJugador
 
     // Deberia ser Map<AID, Arraylist<Product>>, pero a json no le gusta AID como clave :(
     public AID agente_jugador_AID;
-    public HashMap<NombreServicio, ArrayList<AID>> agentes;
-    public HashMap<NombreServicio, ArrayList<AID>> agentes_subscritos;
+    public HashMap<Vocabulario.TipoServicio, ArrayList<AID>> agentes;
+    public HashMap<Vocabulario.TipoServicio, ArrayList<AID>> agentes_subscritos;
 
     public ArrayList<Juego> list_of_games;
     public LinkedList<String> mensajes;
@@ -111,15 +108,14 @@ public class AgenteJugador extends Agent implements SubscripcionDF, TasksJugador
         // Inicialización de las variables del agente
         this.gestor = new GestorSubscripciones();
         this.agente_jugador_AID = getAID();
+        this.UI_consola = new ConsolaJFrame(this);
 
         // Registro del agente en las Páginas Amarrillas
         DFAgentDescription dfd = new DFAgentDescription();
         dfd.setName(getAID());
         ServiceDescription sd = new ServiceDescription();
-
-        sd.setType(TipoServicio.JUGADOR.name());
-        sd.setName(TipoJuego.ENCERRADO.name());
-
+        sd.setType(Vocabulario.TipoServicio.JUGADOR.name());
+        sd.setName(Vocabulario.TipoJuego.ENCERRADO.name());
         dfd.addServices(sd);
         try {
             DFService.register(this, dfd);
@@ -128,8 +124,6 @@ public class AgenteJugador extends Agent implements SubscripcionDF, TasksJugador
         }
 
         init();
-
-        this.UI_consola = new ConsolaJFrame(this);
     }
 
     @Override
@@ -143,10 +137,10 @@ public class AgenteJugador extends Agent implements SubscripcionDF, TasksJugador
 
         // Despedida
         this.addMsgConsola("Finaliza la ejecución del agente: " + this.getName());
-        
+
         // Liberación de recursos, incluido el GUI
         this.UI_consola.dispose();
-        
+
         MicroRuntime.stopJADE();
     }
 
@@ -187,14 +181,14 @@ public class AgenteJugador extends Agent implements SubscripcionDF, TasksJugador
 
     }
 
-    private void requestSubscription(Constantes.NombreServicio servicio, AID agente) {
+    private void requestSubscription(Vocabulario.TipoServicio servicio, AID agente) {
         this.addMsgConsola("crearSubscripcion: " + agente.getLocalName());
         ArrayList<AID> lista_subscritos = this.agentes_subscritos.getOrDefault(servicio, new ArrayList<>());
         lista_subscritos.add(agente);
         this.agentes_subscritos.put(servicio, lista_subscritos);
     }
 
-    private void cancelarSubscripcion(Constantes.NombreServicio servicio, AID agente) {
+    private void cancelarSubscripcion(Vocabulario.TipoServicio servicio, AID agente) {
         this.addMsgConsola("cancelarSubscripcion: " + agente.getLocalName());
 
         ArrayList<AID> lista_subscritos = this.agentes_subscritos.getOrDefault(servicio, new ArrayList<>());
@@ -209,7 +203,7 @@ public class AgenteJugador extends Agent implements SubscripcionDF, TasksJugador
     }
 
     @Override
-    public void addAgent(AID agente, Constantes.NombreServicio servicio) {
+    public void addAgent(AID agente, Vocabulario.TipoServicio servicio) {
         this.addMsgConsola("==================================");
         this.addMsgConsola("addAgent  AgentID: " + agente.getLocalName());
         this.addMsgConsola("addAgent Servicio: " + servicio.name());
@@ -221,15 +215,14 @@ public class AgenteJugador extends Agent implements SubscripcionDF, TasksJugador
             case JUGADOR:
 
                 break;
-            case MONITOR:
-                lista.add(agente);
-                break;
+//            case MONITOR:
+//                lista.add(agente);
+//                break;
             case ORGANIZADOR:
 
                 lista.add(agente);
                 break;
             case TABLERO:
-
                 requestSubscription(servicio, agente);
                 lista.add(agente);
                 break;
@@ -239,7 +232,7 @@ public class AgenteJugador extends Agent implements SubscripcionDF, TasksJugador
     }
 
     @Override
-    public boolean removeAgent(AID agente, Constantes.NombreServicio servicio) {
+    public boolean removeAgent(AID agente, Vocabulario.TipoServicio servicio) {
         boolean to_return = false;
         ArrayList<AID> lista = this.agentes.getOrDefault(servicio, new ArrayList<>());
 

@@ -5,8 +5,7 @@
  */
 package es.uja.ssmmaa.dots_and_boxes.tareas;
 
-import es.uja.ssmmaa.dots_and_boxes.project.Constantes.NombreServicio;
-import static es.uja.ssmmaa.dots_and_boxes.project.Constantes.SERVICIOS;
+import es.uja.ssmmaa.ontologia.Vocabulario;
 import jade.core.AID;
 import jade.core.Agent;
 import jade.domain.DFSubscriber;
@@ -46,7 +45,7 @@ public class TareaSubscripcionDF extends DFSubscriber {
         Iterator it = dfad.getAllServices();
         while (it.hasNext()) {
             ServiceDescription sd = (ServiceDescription) it.next();
-            for (NombreServicio servicio : SERVICIOS) {
+            for (Vocabulario.TipoServicio servicio : Vocabulario.TIPOS_SERVICIO) {
                 if (sd.getName().equals(servicio.name())
                         && sd.getType().equals(tipoServicio)) {
 
@@ -74,7 +73,7 @@ public class TareaSubscripcionDF extends DFSubscriber {
     public void onDeregister(DFAgentDescription dfad) {
         AID agente = dfad.getName();
 
-        for (NombreServicio servicio : SERVICIOS) {
+            for (Vocabulario.TipoServicio servicio : Vocabulario.TIPOS_SERVICIO) {
             if (this.agente.removeAgent(agente, servicio)) {
                 System.out.println(
                         "El agente: " + agente.getName()
