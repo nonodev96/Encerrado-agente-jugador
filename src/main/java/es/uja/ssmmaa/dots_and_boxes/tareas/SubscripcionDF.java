@@ -17,7 +17,11 @@ import jade.core.AID;
  */
 public interface SubscripcionDF {
 
-    public void addAgent(AID agente, Vocabulario.TipoServicio servicio);
+    public void addAgent(AID agente, Vocabulario.TipoJuego juego, Vocabulario.TipoServicio tipoServicio);
 
-    public boolean removeAgent(AID agente, Vocabulario.TipoServicio servicio);
+    public boolean removeAgent(
+            AID agente,
+            Vocabulario.TipoJuego juego,
+            Vocabulario.TipoServicio tipoServicio
+    );
 }

@@ -33,12 +33,12 @@ import java.util.logging.Logger;
  */
 public class TaskResponsePropose_Jugador extends ProposeResponder {
 
-    private final AgenteJugador myAgent_jugador;
+    private final TasksJugador myAgent_jugador;
 
     public TaskResponsePropose_Jugador(Agent a, MessageTemplate mt) {
         super(a, mt);
-        this.myAgent_jugador = (AgenteJugador) a;
-        this.myAgent_jugador.addMsgConsola("        --> ProposeResponder(Agent a, MessageTemplate mt)");
+        this.myAgent_jugador = (TasksJugador) a;
+        this.myAgent_jugador.addMsgConsole("        --> ProposeResponder(Agent a, MessageTemplate mt)");
     }
 
     @Override
@@ -67,7 +67,7 @@ public class TaskResponsePropose_Jugador extends ProposeResponder {
      */
     private ACLMessage response_propuesta_de_juego(ACLMessage propose) {
         String content = propose.getContent();
-        this.myAgent_jugador.addMsgConsola("content: " + content);
+        this.myAgent_jugador.addMsgConsole("content: " + content);
 
         GsonUtil<ProponerJuego> gson = new GsonUtil<>();
 
@@ -82,9 +82,10 @@ public class TaskResponsePropose_Jugador extends ProposeResponder {
         if (justificacion.getJuego().getTipoJuego() == Vocabulario.TipoJuego.TRES_EN_RAYA) {
             justificacion.setDetalle(Vocabulario.Motivo.TIPO_JUEGO_NO_IMPLEMENTADO);
         }
-        if (this.myAgent_jugador.get_size_actives_games() >= 3) {
-            justificacion.setDetalle(Vocabulario.Motivo.JUEGOS_ACTIVOS_SUPERADOS);
-        }
+        // TODO
+//        if (this.myAgent_jugador.get_size_actives_games() >= 3) {
+//            justificacion.setDetalle(Vocabulario.Motivo.JUEGOS_ACTIVOS_SUPERADOS);
+//        }
 
         // ===================================================================
         Juego juego = new Juego();

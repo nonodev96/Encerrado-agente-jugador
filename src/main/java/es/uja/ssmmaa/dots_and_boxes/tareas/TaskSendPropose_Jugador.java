@@ -5,7 +5,12 @@
  */
 package es.uja.ssmmaa.dots_and_boxes.tareas;
 
+import es.uja.ssmmaa.ontologia.Vocabulario;
+import es.uja.ssmmaa.ontologia.quatro.Ficha;
 import es.uja.ssmmaa.ontologia.juegoTablero.CompletarPartida;
+import es.uja.ssmmaa.ontologia.juegoTablero.MovimientoEntregadoLinea;
+import es.uja.ssmmaa.ontologia.quatro.Ficha;
+import es.uja.ssmmaa.ontologia.quatro.FichaEntregada;
 import jade.content.AgentAction;
 import jade.content.ContentElement;
 import jade.content.ContentManager;
@@ -28,6 +33,12 @@ public class TaskSendPropose_Jugador extends ProposeInitiator {
 
     private final TasksJugador agente;
     private final ContentManager manager;
+
+    public TaskSendPropose_Jugador(Agent a, ACLMessage msg) {
+        super(a, msg);
+        this.agente = (TasksJugador) a;
+        this.manager = agente.getManager();
+    }
 
     public TaskSendPropose_Jugador(Agent a, ACLMessage msg, AgentAction agentAction) {
         super(a, msg);
@@ -54,14 +65,24 @@ public class TaskSendPropose_Jugador extends ProposeInitiator {
 
                 switch (msg.getPerformative()) {
                     case ACCEPT_PROPOSAL:
-                        // Envio MovimientoEntregado A Tablero
-                        // Trato la respuesta con <MovimientoEntregado>
+                        // Envio MovimientoEntregadoLinea A Tablero
+                        // Trato la respuesta con <MovimientoEntregadoLinea>
                         // =========================
-                       
+                        if (respuesta instanceof MovimientoEntregadoLinea) {
+                            MovimientoEntregadoLinea mel = (MovimientoEntregadoLinea) respuesta;
+                            Vocabulario.Orientacion o = mel.getOrientacion();
+
+                            this.agente.addMsgConsole("Orientacion" + o.name());
+                        }
+
                         // Envio EstadoPartida A Tablero
                         // Trato la respuesta con <FichaEntregada>
                         // =========================
-                        
+                        if (respuesta instanceof FichaEntregada) {
+                            FichaEntregada fe = (FichaEntregada) respuesta;
+                            Ficha f = fe.getFicha();
+                            System.out.println("Ficha" + f.getForma().name());
+                        }
                         // Envio EstadoPartida a Tablero
                         // Trato la respuesta con <?>
                         break;
@@ -71,7 +92,7 @@ public class TaskSendPropose_Jugador extends ProposeInitiator {
                     default:
                 }
             } catch (Codec.CodecException | OntologyException ex) {
-                System.out.println("ERROR en la construcción del mensaje de\n"
+                System.out.println("El contenido del mensaje es incorrecto\n"
                         + agenteJuego.getLocalName() + "\n" + msg + "\n" + ex);
             }
         }

@@ -5,7 +5,10 @@
  */
 package es.uja.ssmmaa.dots_and_boxes.tareas;
 
-import es.uja.ssmmaa.ontologia.Vocabulario;
+import static es.uja.ssmmaa.ontologia.Vocabulario.JUEGOS;
+
+import es.uja.ssmmaa.ontologia.Vocabulario.TipoJuego;
+import es.uja.ssmmaa.ontologia.Vocabulario.TipoServicio;
 import jade.core.AID;
 import jade.core.Agent;
 import jade.domain.DFSubscriber;
@@ -28,7 +31,8 @@ public class TareaSubscripcionDF extends DFSubscriber {
     public TareaSubscripcionDF(Agent a, DFAgentDescription template) {
         super(a, template);
         this.agente = (SubscripcionDF) a;
-        this.tipoServicio = ((ServiceDescription) template.getAllServices().next()).getType();
+        tipoServicio
+                = ((ServiceDescription) template.getAllServices().next()).getType();
     }
 
     /**
@@ -45,19 +49,9 @@ public class TareaSubscripcionDF extends DFSubscriber {
         Iterator it = dfad.getAllServices();
         while (it.hasNext()) {
             ServiceDescription sd = (ServiceDescription) it.next();
-            for (Vocabulario.TipoServicio servicio : Vocabulario.TIPOS_SERVICIO) {
-                if (sd.getName().equals(servicio.name())
-                        && sd.getType().equals(tipoServicio)) {
-
-                    this.agente.addAgent(dfad.getName(), servicio);
-
-                    // Para depurar el funcionamiento de la tarea
-                    System.out.println(
-                            "El agente: " + myAgent.getName()
-                            + "ha encontrado a:\n\t"
-                            + dfad.getName());
-                }
-            }
+            TipoJuego juego = TipoJuego.valueOf(sd.getName());
+            TipoServicio tipoServicio = TipoServicio.valueOf(sd.getType());
+            agente.addAgent(dfad.getName(), juego, tipoServicio);
         }
     }
 
@@ -72,13 +66,16 @@ public class TareaSubscripcionDF extends DFSubscriber {
     @Override
     public void onDeregister(DFAgentDescription dfad) {
         AID agente = dfad.getName();
+        TipoServicio servicio = TipoServicio.valueOf(tipoServicio);
 
-            for (Vocabulario.TipoServicio servicio : Vocabulario.TIPOS_SERVICIO) {
-            if (this.agente.removeAgent(agente, servicio)) {
+        for (TipoJuego juego : JUEGOS) {
+            if (this.agente.removeAgent(agente, juego, servicio)) {
                 System.out.println(
-                        "El agente: " + agente.getName()
+                        "El agente: "
+                        + agente.getName()
                         + " ha sido eliminado de la lista de "
-                        + myAgent.getName());
+                        + myAgent.getName()
+                );
             }
         }
     }

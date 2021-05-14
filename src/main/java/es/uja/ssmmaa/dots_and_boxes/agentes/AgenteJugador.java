@@ -24,13 +24,26 @@ import es.uja.ssmmaa.ontologia.juegoTablero.Movimiento;
 import es.uja.ssmmaa.ontologia.juegoTablero.MovimientoEntregado;
 import es.uja.ssmmaa.ontologia.juegoTablero.Partida;
 import es.uja.ssmmaa.dots_and_boxes.gui.ConsolaJFrame;
+import static es.uja.ssmmaa.dots_and_boxes.project.Constantes.TIME_OUT;
+import es.uja.ssmmaa.dots_and_boxes.tareas.TaskIniciatorSubscription_Jugador;
 import es.uja.ssmmaa.dots_and_boxes.tareas.TaskResponsePropose_Jugador;
+import es.uja.ssmmaa.dots_and_boxes.tareas.TaskSendPropose_Jugador;
 import es.uja.ssmmaa.dots_and_boxes.tareas.TasksJugador;
+import es.uja.ssmmaa.dots_and_boxes.tareas.TasksJugadorSubs;
+import static es.uja.ssmmaa.ontologia.Vocabulario.JUEGOS;
+import static es.uja.ssmmaa.ontologia.Vocabulario.TIPOS_SERVICIO;
+import es.uja.ssmmaa.ontologia.juegoTablero.CompletarJuego;
+import es.uja.ssmmaa.ontologia.juegoTablero.InformarResultado;
+import es.uja.ssmmaa.ontologia.juegoTablero.MovimientoEntregadoLinea;
+import jade.content.AgentAction;
+import jade.content.ContentElement;
 import jade.content.ContentManager;
 import jade.content.lang.Codec;
 import jade.content.lang.sl.SLCodec;
 import jade.content.onto.BeanOntologyException;
 import jade.content.onto.Ontology;
+import jade.content.onto.OntologyException;
+import jade.content.onto.basic.Action;
 import jade.core.AID;
 import jade.core.Agent;
 import jade.core.MicroRuntime;
@@ -41,10 +54,16 @@ import jade.domain.FIPAException;
 import jade.domain.FIPANames;
 import jade.lang.acl.ACLMessage;
 import jade.lang.acl.MessageTemplate;
+import jade.proto.SubscriptionInitiator;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.Deque;
 import java.util.HashMap;
 import java.util.LinkedList;
+import java.util.Map;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import javax.swing.text.Element;
 
 /**
  * <
@@ -73,7 +92,7 @@ import java.util.LinkedList;
  *
  * @author nono_
  */
-public class AgenteJugador extends Agent implements SubscripcionDF, TasksJugador {
+public class AgenteJugador extends Agent implements SubscripcionDF, TasksJugadorSubs {
 
     private GestorSubscripciones gestor;
     private Gson gson;
@@ -89,16 +108,19 @@ public class AgenteJugador extends Agent implements SubscripcionDF, TasksJugador
 
     // Deberia ser Map<AID, Arraylist<Product>>, pero a json no le gusta AID como clave :(
     public AID agente_jugador_AID;
-    public HashMap<Vocabulario.TipoServicio, ArrayList<AID>> agentes;
-    public HashMap<Vocabulario.TipoServicio, ArrayList<AID>> agentes_subscritos;
+
+    private Map<String, Deque<AID>> agentesConocidos;
+    private Map<String, TaskIniciatorSubscription_Jugador> subActivas;
 
     public ArrayList<Juego> list_of_games;
     public LinkedList<String> mensajes;
 
     public AgenteJugador() {
         this.gson = new Gson();
-        this.agentes = new HashMap<>();
-        this.agentes_subscritos = new HashMap<>();
+
+        this.agentesConocidos = new HashMap();
+        this.subActivas = new HashMap<>();
+
         this.list_of_games = new ArrayList<>();
         this.mensajes = new LinkedList<>();
     }
@@ -106,8 +128,9 @@ public class AgenteJugador extends Agent implements SubscripcionDF, TasksJugador
     @Override
     protected void setup() {
         // Inicialización de las variables del agente
-        this.gestor = new GestorSubscripciones();
+
         this.agente_jugador_AID = getAID();
+        this.gestor = new GestorSubscripciones();
         this.UI_consola = new ConsolaJFrame(this);
 
         // Registro del agente en las Páginas Amarrillas
@@ -136,7 +159,7 @@ public class AgenteJugador extends Agent implements SubscripcionDF, TasksJugador
         }
 
         // Despedida
-        this.addMsgConsola("Finaliza la ejecución del agente: " + this.getName());
+        this.addMsgConsole("Finaliza la ejecución del agente: " + this.getName());
 
         // Liberación de recursos, incluido el GUI
         this.UI_consola.dispose();
@@ -145,6 +168,12 @@ public class AgenteJugador extends Agent implements SubscripcionDF, TasksJugador
     }
 
     public void init() {
+        for (TipoServicio servicio : TIPOS_SERVICIO) {
+            for (TipoJuego juego : JUEGOS) {
+                agentesConocidos.put(servicio.name() + juego.name(), new LinkedList());
+            }
+        }
+
         //Registro de la Ontología
         this.manager = new ContentManager();
         try {
@@ -153,8 +182,7 @@ public class AgenteJugador extends Agent implements SubscripcionDF, TasksJugador
             this.manager.registerLanguage(this.codec);
             this.manager.registerOntology(this.ontology);
         } catch (BeanOntologyException ex) {
-            this.addMsgConsola("Error al registrar la ontología \n" + ex);
-//            consola.addMensaje("Error al registrar la ontología \n" + ex);
+            this.addMsgConsole("Error al registrar la ontología \n" + ex);
             this.doDelete();
         }
 
@@ -181,35 +209,14 @@ public class AgenteJugador extends Agent implements SubscripcionDF, TasksJugador
 
     }
 
-    private void requestSubscription(Vocabulario.TipoServicio servicio, AID agente) {
-        this.addMsgConsola("crearSubscripcion: " + agente.getLocalName());
-        ArrayList<AID> lista_subscritos = this.agentes_subscritos.getOrDefault(servicio, new ArrayList<>());
-        lista_subscritos.add(agente);
-        this.agentes_subscritos.put(servicio, lista_subscritos);
-    }
-
-    private void cancelarSubscripcion(Vocabulario.TipoServicio servicio, AID agente) {
-        this.addMsgConsola("cancelarSubscripcion: " + agente.getLocalName());
-
-        ArrayList<AID> lista_subscritos = this.agentes_subscritos.getOrDefault(servicio, new ArrayList<>());
-        ArrayList<AID> list_to_delete_subs = new ArrayList<>();
-        for (AID aid : lista_subscritos) {
-            if (aid.getLocalName().equals(agente.getLocalName())) {
-                list_to_delete_subs.add(aid);
-            }
-        }
-        lista_subscritos.removeAll(list_to_delete_subs);
-        this.agentes.put(servicio, lista_subscritos);
-    }
-
     @Override
-    public void addAgent(AID agente, Vocabulario.TipoServicio servicio) {
-        this.addMsgConsola("==================================");
-        this.addMsgConsola("addAgent  AgentID: " + agente.getLocalName());
-        this.addMsgConsola("addAgent Servicio: " + servicio.name());
-        this.addMsgConsola("==================================");
+    public void addAgent(AID agente, TipoJuego juego, Vocabulario.TipoServicio servicio) {
+        this.addMsgConsole("==================================");
+        this.addMsgConsole("addAgent  AgentID: " + agente.getLocalName());
+        this.addMsgConsole("addAgent Servicio: " + servicio.name());
+        this.addMsgConsole("==================================");
 
-        ArrayList<AID> lista = this.agentes.getOrDefault(servicio, new ArrayList<>());
+        Deque<AID> lista = this.agentesConocidos.getOrDefault(servicio.name() + juego.name(), new LinkedList());
 
         switch (servicio) {
             case JUGADOR:
@@ -223,18 +230,31 @@ public class AgenteJugador extends Agent implements SubscripcionDF, TasksJugador
                 lista.add(agente);
                 break;
             case TABLERO:
-                requestSubscription(servicio, agente);
+
+                ACLMessage msg = new ACLMessage(ACLMessage.SUBSCRIBE);
+                msg.setProtocol(FIPANames.InteractionProtocol.FIPA_SUBSCRIBE);
+                msg.setSender(this.getAID());
+                msg.setLanguage(codec.getName());
+                msg.setOntology(ontology.getName());
+                // AID Tablero
+                msg.addReceiver(agente);
+                msg.setReplyByDate(new Date(System.currentTimeMillis() + TIME_OUT));
+
+                TaskIniciatorSubscription_Jugador task = new TaskIniciatorSubscription_Jugador(this, null);
+                addSubscription(agente, task);
+
                 lista.add(agente);
+
                 break;
         }
 
-        this.agentes.put(servicio, lista);
+        this.agentesConocidos.put(servicio.name() + juego.name(), lista);
     }
 
     @Override
-    public boolean removeAgent(AID agente, Vocabulario.TipoServicio servicio) {
+    public boolean removeAgent(AID agente, TipoJuego juego, Vocabulario.TipoServicio servicio) {
         boolean to_return = false;
-        ArrayList<AID> lista = this.agentes.getOrDefault(servicio, new ArrayList<>());
+        Deque<AID> lista = this.agentesConocidos.getOrDefault(servicio.name() + juego.name(), new LinkedList<>());
 
         // Seleccionamos el que vamos a borrar
         ArrayList<AID> list_to_delete = new ArrayList<>();
@@ -246,11 +266,11 @@ public class AgenteJugador extends Agent implements SubscripcionDF, TasksJugador
             }
         }
 
-        this.cancelarSubscripcion(servicio, agente);
+        this.cancelSubscription(agente);
 
         // Actualizamos
         lista.removeAll(list_to_delete);
-        this.agentes.put(servicio, lista);
+        this.agentesConocidos.put(servicio.name() + juego.name(), lista);
 
         return to_return;
     }
@@ -281,12 +301,33 @@ public class AgenteJugador extends Agent implements SubscripcionDF, TasksJugador
         return this.gestor;
     }
 
+    @Override
+    public void addSubscription(AID agente, SubscriptionInitiator sub) {
+        this.subActivas.put(agente.getLocalName(), (TaskIniciatorSubscription_Jugador) sub);
+    }
+
+    @Override
+    public void cancelSubscription(AID agente) {
+        this.addMsgConsole("cancelSubscription: " + agente.getLocalName());
+        TaskIniciatorSubscription_Jugador sub = this.subActivas.remove(agente.getLocalName());
+        
+        if (sub != null) {
+            sub.cancel(agente, true);
+            this.addMsgConsole("SUSBCRIPCIÓN CANDELADA PARA\n" + agente);
+        }
+    }
+
+    @Override
+    public void setResultado(AID agenteOrganizador, ContentElement resultado) {
+
+    }
+
     /*
      * Logs
      * ========================================================================
      */
     @Override
-    public void addMsgConsola(String msg) {
+    public void addMsgConsole(String msg) {
         this.UI_consola.addMensaje(msg);
     }
 
@@ -304,54 +345,86 @@ public class AgenteJugador extends Agent implements SubscripcionDF, TasksJugador
      * @param estado
      */
     private void estadoPartida(int status, Partida partida, Vocabulario.Estado estado) {
-        this.addMsgConsola("EstadoPartida");
+        this.addMsgConsole("EstadoPartida");
         // Contenido del mensaje representado en la ontología
         EstadoPartida estadoPartida = new EstadoPartida();
         estadoPartida.setPartida(partida);
         estadoPartida.setEstadoPartida(estado);
 
-//        String idJuego = tipoJuego.name() + "-" + diaJuego + "-" + numJuego;
-//        juego = new Juego(idJuego, tipoJuego);
         // Creamos el mensaje a enviar
         ACLMessage msg = new ACLMessage(status);
         msg.setProtocol(FIPANames.InteractionProtocol.FIPA_PROPOSE);
         msg.setSender(getAID());
-
         msg.setLanguage(codec.getName());
         msg.setOntology(ontology.getName());
         msg.setReplyByDate(new Date(System.currentTimeMillis() + TIME_OUT));
 
-//        Action ac = new Action(this.getAID(), estadoPartida);
-//        try {
-        // Completamos en contenido del mensajes
-//            manager.fillContent(msg, ac);
-//        } catch (Codec.CodecException | OntologyException ex) {
-//            System.out.println("Error en la construcción del mensaje en Proponer Juego \n" + ex);
-//            consola.addMensaje("Error en la construcción del mensaje en Proponer Juego \n" + ex);
-//        }
-//        TaskSendPropose_To_Tablero_CompletarPartida task = new TaskSendPropose_To_Tablero_CompletarPartida(this, msg, completarPartida);
-//        addBehaviour(task);
+        try {
+            // Completamos en contenido del mensajes
+            manager.fillContent(msg, estadoPartida);
+        } catch (Codec.CodecException | OntologyException ex) {
+            this.addMsgConsole("Error en la construcción del mensaje en Proponer Juego \n" + ex);
+        }
+        TaskSendPropose_Jugador task = new TaskSendPropose_Jugador(this, msg);
+        addBehaviour(task);
     }
 
     private void propose_MovimientoEntregado(Partida partida, Movimiento movimiento) {
-        this.addMsgConsola("Propose_MovimientoEntregado");
+        this.addMsgConsole("Propose_MovimientoEntregado");
         // Contenido del mensaje representado en la ontología
-        MovimientoEntregado movimientoEntregado = new MovimientoEntregado();
-        movimientoEntregado.setPartida(partida);
-        movimientoEntregado.setMovimiento(movimiento);
+        MovimientoEntregadoLinea mel = new MovimientoEntregadoLinea();
+        mel.setPartida(partida);
+        mel.setMovimiento(movimiento);
 
         // Creamos el mensaje a enviar
         ACLMessage msg = new ACLMessage(ACLMessage.PROPOSE);
         msg.setProtocol(FIPANames.InteractionProtocol.FIPA_PROPOSE);
         msg.setSender(getAID());
-
         msg.setLanguage(codec.getName());
         msg.setOntology(ontology.getName());
         msg.setReplyByDate(new Date(System.currentTimeMillis() + TIME_OUT));
 
-//        Action ac = new Action(this.getAID(), movimientoEntregado);
-//        TaskSendPropose task = new TaskSendPropose(this, msg, movimientoEntregado);
-//        addBehaviour(task);
+        try {
+            // Completamos en contenido del mensajes
+            this.manager.fillContent(msg, mel);
+        } catch (Codec.CodecException | OntologyException ex) {
+            this.addMsgConsole("Error en la construcción del mensaje en MovimientoEntregado \n" + ex);
+        }
+
+        TaskSendPropose_Jugador task = new TaskSendPropose_Jugador(this, msg);
+        addBehaviour(task);
     }
 
+    private void informarResultado(AID agenteOrganizador, TipoJuego tipoJuego) {
+        String nameAgente = agenteOrganizador.getLocalName();
+
+        if (!subActivas.containsKey(nameAgente)) {
+            InformarResultado resultado = new InformarResultado();
+            // TODO
+            //resultado.setAgente(agenteJuego);
+
+            //Creamos el mensaje para lanzar el protocolo Subscribe
+            ACLMessage msg = new ACLMessage(ACLMessage.SUBSCRIBE);
+            msg.setProtocol(FIPANames.InteractionProtocol.FIPA_SUBSCRIBE);
+            msg.setSender(this.getAID());
+            msg.setLanguage(codec.getName());
+            msg.setOntology(ontology.getName());
+            msg.addReceiver(agenteOrganizador);
+            msg.setReplyByDate(new Date(System.currentTimeMillis() + TIME_OUT));
+
+            Action ac = new Action(this.getAID(), resultado);
+
+            try {
+                manager.fillContent(msg, ac);
+            } catch (Codec.CodecException | OntologyException ex) {
+                this.addMsgConsole(
+                        "Error en la construcción del mensaje en Informar Resultado \n" + ex
+                );
+            }
+
+            addBehaviour(new TaskIniciatorSubscription_Jugador(this, msg));
+        } else {
+            this.addMsgConsole("Ya hay una suscripción activa con " + nameAgente);
+        }
+    }
 }

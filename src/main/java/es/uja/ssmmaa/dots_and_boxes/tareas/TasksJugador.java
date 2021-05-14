@@ -21,6 +21,6 @@ public interface TasksJugador {
 
     public GestorSubscripciones getGestor();
 
-    public void addMsgConsola(String msg);
+    public void addMsgConsole(String msg);
 
 }
