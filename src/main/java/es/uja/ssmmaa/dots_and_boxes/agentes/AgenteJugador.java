@@ -240,8 +240,7 @@ public class AgenteJugador extends Agent implements SubscripcionDF, TasksJugador
                 msg.addReceiver(agente);
                 msg.setReplyByDate(new Date(System.currentTimeMillis() + TIME_OUT));
 
-                TaskIniciatorSubscription_Jugador task = new TaskIniciatorSubscription_Jugador(this, null);
-                addSubscription(agente, task);
+                TaskIniciatorSubscription_Jugador task = new TaskIniciatorSubscription_Jugador(this, msg);
 
                 lista.add(agente);
 

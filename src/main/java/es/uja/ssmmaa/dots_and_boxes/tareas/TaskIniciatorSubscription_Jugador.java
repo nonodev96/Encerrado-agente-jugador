@@ -63,63 +63,28 @@ public class TaskIniciatorSubscription_Jugador extends SubscriptionInitiator {
 
                 switch (msg.getPerformative()) {
                     case NOT_UNDERSTOOD:
-                        agente.addMsgConsole(
-                                "El agente "
-                                + emisor
-                                + " no entiende la suscripción\n"
-                                + justificacion
-                        );
+                        agente.addMsgConsole("El agente " + emisor + " no entiende la suscripción\n" + justificacion);
                         break;
                     case REFUSE:
-                        agente.addMsgConsole(
-                                "El agente "
-                                + emisor
-                                + " rechaza la suscripción\n"
-                                + justificacion
-                        );
+                        agente.addMsgConsole("El agente " + emisor + " rechaza la suscripción\n" + justificacion);
                         break;
                     case FAILURE:
-                        agente.addMsgConsole(
-                                "El agente "
-                                + emisor
-                                + " no ha completado la suscripción\n"
-                                + justificacion
-                        );
+                        agente.addMsgConsole("El agente " + emisor + " no ha completado la suscripción\n" + justificacion);
                         break;
                     case AGREE:
-                        // Hecho en addAgent(AID agente, TipoJuego juego, Vocabulario.TipoServicio servicio) 
-                        // TODO
-                        //agente.addSubcription(emisor.getLocalName(), this);
-
-                        agente.addMsgConsole(
-                                "El agente "
-                                + emisor
-                                + " ha aceptado la suscripción\n"
-                                + justificacion
-                        );
+                        agente.addSubscription(emisor, this);
+                        agente.addMsgConsole("El agente " + emisor + " ha aceptado la suscripción\n" + justificacion);
                         break;
                     default:
-                        agente.addMsgConsole(
-                                "El agente "
-                                + emisor
-                                + " envía un mensaje desconocido\n"
-                                + msg
-                        );
+                        agente.addMsgConsole("El agente " + emisor + " envía un mensaje desconocido\n" + msg);
                 }
             } catch (Codec.CodecException | OntologyException ex) {
-                agente.addMsgConsole(
-                        emisor.getLocalName()
-                        + " El contenido del mensaje es incorrecto\n\t"
-                        + ex
-                );
+                agente.addMsgConsole(emisor.getLocalName() + " El contenido del mensaje es incorrecto\n\t" + ex);
             }
-
         }
 
         if (responses.isEmpty()) {
-            agente.addMsgConsole(
-                    "EL ORGANIZADOR NO RESPONDE A LA SUSCRIPCIÓN"
-            );
+            agente.addMsgConsole("EL ORGANIZADOR NO RESPONDE A LA SUSCRIPCIÓN");
         }
     }
 
