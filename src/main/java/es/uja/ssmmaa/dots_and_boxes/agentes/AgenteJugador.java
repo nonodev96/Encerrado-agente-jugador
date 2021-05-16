@@ -5,37 +5,31 @@
  */
 package es.uja.ssmmaa.dots_and_boxes.agentes;
 
-import es.uja.ssmmaa.dots_and_boxes.project.Constantes;
-import es.uja.ssmmaa.dots_and_boxes.tareas.TareaSubscripcionDF;
-import es.uja.ssmmaa.dots_and_boxes.tareas.SubscripcionDF;
-
-import es.uja.ssmmaa.dots_and_boxes.util.GestorSubscripciones;
-
-import com.google.gson.Gson;
+import static es.uja.ssmmaa.ontologia.Vocabulario.JUEGOS;
+import static es.uja.ssmmaa.ontologia.Vocabulario.TIPOS_SERVICIO;
 import es.uja.ssmmaa.ontologia.Vocabulario;
 import es.uja.ssmmaa.ontologia.Vocabulario.TipoJuego;
 import es.uja.ssmmaa.ontologia.Vocabulario.TipoServicio;
-//import es.uja.ssmmaa.curso1920.ontologia.tresEnRaya.TresEnRaya;
-
-import static es.uja.ssmmaa.dots_and_boxes.project.Constantes.TIME_OUT;
 import es.uja.ssmmaa.ontologia.juegoTablero.EstadoPartida;
 import es.uja.ssmmaa.ontologia.juegoTablero.Juego;
 import es.uja.ssmmaa.ontologia.juegoTablero.Movimiento;
-import es.uja.ssmmaa.ontologia.juegoTablero.MovimientoEntregado;
 import es.uja.ssmmaa.ontologia.juegoTablero.Partida;
-import es.uja.ssmmaa.dots_and_boxes.gui.ConsolaJFrame;
+import es.uja.ssmmaa.ontologia.juegoTablero.InformarResultado;
+import es.uja.ssmmaa.ontologia.juegoTablero.MovimientoEntregadoLinea;
+
 import static es.uja.ssmmaa.dots_and_boxes.project.Constantes.TIME_OUT;
+import es.uja.ssmmaa.dots_and_boxes.gui.ConsolaJFrame;
 import es.uja.ssmmaa.dots_and_boxes.tareas.TaskIniciatorSubscription_Jugador;
 import es.uja.ssmmaa.dots_and_boxes.tareas.TaskResponsePropose_Jugador;
 import es.uja.ssmmaa.dots_and_boxes.tareas.TaskSendPropose_Jugador;
-import es.uja.ssmmaa.dots_and_boxes.tareas.TasksJugador;
 import es.uja.ssmmaa.dots_and_boxes.tareas.TasksJugadorSubs;
-import static es.uja.ssmmaa.ontologia.Vocabulario.JUEGOS;
-import static es.uja.ssmmaa.ontologia.Vocabulario.TIPOS_SERVICIO;
-import es.uja.ssmmaa.ontologia.juegoTablero.CompletarJuego;
-import es.uja.ssmmaa.ontologia.juegoTablero.InformarResultado;
-import es.uja.ssmmaa.ontologia.juegoTablero.MovimientoEntregadoLinea;
-import jade.content.AgentAction;
+import es.uja.ssmmaa.dots_and_boxes.tareas.TareaSubscripcionDF;
+import es.uja.ssmmaa.dots_and_boxes.tareas.SubscripcionDF;
+import es.uja.ssmmaa.dots_and_boxes.util.GestorSubscripciones;
+
+import com.google.gson.Gson;
+import es.uja.ssmmaa.dots_and_boxes.tareas.TaskContractNetResponder_Jugador;
+
 import jade.content.ContentElement;
 import jade.content.ContentManager;
 import jade.content.lang.Codec;
@@ -61,9 +55,6 @@ import java.util.Deque;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.Map;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-import javax.swing.text.Element;
 
 /**
  * <
@@ -200,6 +191,14 @@ public class AgenteJugador extends Agent implements SubscripcionDF, TasksJugador
 //                MessageTemplate.MatchPerformative(ACLMessage.REQUEST)
 //        );
 //        addBehaviour(new TaskResponse_Jugador(this, template_RR, this));
+
+        // Plantilla para responder mensajes FIPA_CONTRACT_NET
+        MessageTemplate template_CN = MessageTemplate.and(
+                MessageTemplate.MatchProtocol(FIPANames.InteractionProtocol.FIPA_CONTRACT_NET),
+                MessageTemplate.MatchPerformative(ACLMessage.CFP)
+        );
+        addBehaviour(new TaskContractNetResponder_Jugador(this, template_CN));;
+
         // Plantilla para responder mensajes FIPA_PROPOSE
         MessageTemplate template_RP = MessageTemplate.and(
                 MessageTemplate.MatchProtocol(FIPANames.InteractionProtocol.FIPA_PROPOSE),
@@ -230,7 +229,6 @@ public class AgenteJugador extends Agent implements SubscripcionDF, TasksJugador
                 lista.add(agente);
                 break;
             case TABLERO:
-
                 ACLMessage msg = new ACLMessage(ACLMessage.SUBSCRIBE);
                 msg.setProtocol(FIPANames.InteractionProtocol.FIPA_SUBSCRIBE);
                 msg.setSender(this.getAID());
@@ -241,6 +239,7 @@ public class AgenteJugador extends Agent implements SubscripcionDF, TasksJugador
                 msg.setReplyByDate(new Date(System.currentTimeMillis() + TIME_OUT));
 
                 TaskIniciatorSubscription_Jugador task = new TaskIniciatorSubscription_Jugador(this, msg);
+                addBehaviour(task);
 
                 lista.add(agente);
 
@@ -309,7 +308,7 @@ public class AgenteJugador extends Agent implements SubscripcionDF, TasksJugador
     public void cancelSubscription(AID agente) {
         this.addMsgConsole("cancelSubscription: " + agente.getLocalName());
         TaskIniciatorSubscription_Jugador sub = this.subActivas.remove(agente.getLocalName());
-        
+
         if (sub != null) {
             sub.cancel(agente, true);
             this.addMsgConsole("SUSBCRIPCIÓN CANDELADA PARA\n" + agente);
@@ -318,7 +317,7 @@ public class AgenteJugador extends Agent implements SubscripcionDF, TasksJugador
 
     @Override
     public void setResultado(AID agenteOrganizador, ContentElement resultado) {
-
+        throw new UnsupportedOperationException("Not supported yet.");
     }
 
     /*
@@ -394,7 +393,7 @@ public class AgenteJugador extends Agent implements SubscripcionDF, TasksJugador
         addBehaviour(task);
     }
 
-    private void informarResultado(AID agenteOrganizador, TipoJuego tipoJuego) {
+    public void informarResultado(AID agenteOrganizador, TipoJuego tipoJuego) {
         String nameAgente = agenteOrganizador.getLocalName();
 
         if (!subActivas.containsKey(nameAgente)) {
@@ -416,9 +415,7 @@ public class AgenteJugador extends Agent implements SubscripcionDF, TasksJugador
             try {
                 manager.fillContent(msg, ac);
             } catch (Codec.CodecException | OntologyException ex) {
-                this.addMsgConsole(
-                        "Error en la construcción del mensaje en Informar Resultado \n" + ex
-                );
+                this.addMsgConsole("Error en la construcción del mensaje en Informar Resultado \n" + ex);
             }
 
             addBehaviour(new TaskIniciatorSubscription_Jugador(this, msg));

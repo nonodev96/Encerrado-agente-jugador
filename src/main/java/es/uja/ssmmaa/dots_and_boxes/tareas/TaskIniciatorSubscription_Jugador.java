@@ -8,6 +8,13 @@ package es.uja.ssmmaa.dots_and_boxes.tareas;
 import es.uja.ssmmaa.ontologia.juegoTablero.ClasificacionJuego;
 import es.uja.ssmmaa.ontologia.juegoTablero.IncidenciaJuego;
 import es.uja.ssmmaa.ontologia.juegoTablero.Justificacion;
+
+import es.uja.ssmmaa.dots_and_boxes.agentes.AgenteJugador;
+
+import static jade.lang.acl.ACLMessage.AGREE;
+import static jade.lang.acl.ACLMessage.FAILURE;
+import static jade.lang.acl.ACLMessage.NOT_UNDERSTOOD;
+import static jade.lang.acl.ACLMessage.REFUSE;
 import jade.content.ContentElement;
 import jade.content.ContentManager;
 import jade.content.lang.Codec;
@@ -15,10 +22,6 @@ import jade.content.onto.OntologyException;
 import jade.core.AID;
 import jade.core.Agent;
 import jade.lang.acl.ACLMessage;
-import static jade.lang.acl.ACLMessage.AGREE;
-import static jade.lang.acl.ACLMessage.FAILURE;
-import static jade.lang.acl.ACLMessage.NOT_UNDERSTOOD;
-import static jade.lang.acl.ACLMessage.REFUSE;
 import jade.proto.SubscriptionInitiator;
 import java.util.Iterator;
 import java.util.Vector;
@@ -29,11 +32,11 @@ import java.util.Vector;
  */
 public class TaskIniciatorSubscription_Jugador extends SubscriptionInitiator {
 
-    private final TasksJugadorSubs agente;
+    private final AgenteJugador agente;
 
     public TaskIniciatorSubscription_Jugador(Agent a, ACLMessage msg) {
         super(a, msg);
-        this.agente = (TasksJugadorSubs) a;
+        this.agente = (AgenteJugador) a;
     }
 
     @Override
@@ -48,6 +51,10 @@ public class TaskIniciatorSubscription_Jugador extends SubscriptionInitiator {
         Justificacion justificacion = null;
         Iterator it = responses.iterator();
 
+        if (responses.isEmpty()) {
+            agente.addMsgConsole("EL ORGANIZADOR NO RESPONDE A LA SUSCRIPCIÓN");
+        }
+
         while (it.hasNext()) {
             ACLMessage msg = (ACLMessage) it.next();
             AID emisor = msg.getSender();
@@ -55,12 +62,10 @@ public class TaskIniciatorSubscription_Jugador extends SubscriptionInitiator {
 
             if (manager == null) {
                 agente.addMsgConsole("NO SE ENTIENDE EL MENSAJE\n" + msg);
-                return;
+                throw new NullPointerException("manager error");
             }
-
             try {
                 justificacion = (Justificacion) manager.extractContent(msg);
-
                 switch (msg.getPerformative()) {
                     case NOT_UNDERSTOOD:
                         agente.addMsgConsole("El agente " + emisor + " no entiende la suscripción\n" + justificacion);
@@ -82,10 +87,6 @@ public class TaskIniciatorSubscription_Jugador extends SubscriptionInitiator {
                 agente.addMsgConsole(emisor.getLocalName() + " El contenido del mensaje es incorrecto\n\t" + ex);
             }
         }
-
-        if (responses.isEmpty()) {
-            agente.addMsgConsole("EL ORGANIZADOR NO RESPONDE A LA SUSCRIPCIÓN");
-        }
     }
 
     @Override
@@ -98,9 +99,7 @@ public class TaskIniciatorSubscription_Jugador extends SubscriptionInitiator {
 
             if (contenido instanceof ClasificacionJuego) {
                 // Finalización correcta del juego
-                agente.addMsgConsole(
-                        "CLASIFICACION\n" + (ClasificacionJuego) contenido
-                );
+                agente.addMsgConsole("CLASIFICACION\n" + (ClasificacionJuego) contenido);
             } else {
                 // El juego no ha finalizado
                 agente.addMsgConsole("INCIDENCIA\n" + (IncidenciaJuego) contenido);
@@ -108,10 +107,7 @@ public class TaskIniciatorSubscription_Jugador extends SubscriptionInitiator {
 
             agente.setResultado(inform.getSender(), contenido);
         } catch (Codec.CodecException | OntologyException ex) {
-            agente.addMsgConsole(
-                    "Error en el formato del mensaje del agente "
-                    + inform.getSender().getLocalName()
-            );
+            agente.addMsgConsole("Error en el formato del mensaje del agente " + inform.getSender().getLocalName());
         }
     }
 }

@@ -5,6 +5,8 @@
  */
 package es.uja.ssmmaa.dots_and_boxes.gui;
 
+import es.uja.ssmmaa.dots_and_boxes.agentes.AgenteJugador;
+import es.uja.ssmmaa.ontologia.Vocabulario;
 import jade.core.Agent;
 
 /**
@@ -13,7 +15,7 @@ import jade.core.Agent;
  */
 public class AgenteJugador_UI extends javax.swing.JFrame {
 
-    private final Agent myAgent;
+    private final AgenteJugador myAgent;
 
     /**
      * Creates new form AgenteJugador_UI
@@ -23,7 +25,7 @@ public class AgenteJugador_UI extends javax.swing.JFrame {
         this.myAgent = null;
     }
 
-    public AgenteJugador_UI(Agent myAgent) {
+    public AgenteJugador_UI(AgenteJugador myAgent) {
         initComponents();
         this.myAgent = myAgent;
     }
@@ -37,21 +39,43 @@ public class AgenteJugador_UI extends javax.swing.JFrame {
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
+        informar_jButton = new javax.swing.JButton();
+
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
+
+        informar_jButton.setText("Informar resultado");
+        informar_jButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                informar_jButtonActionPerformed(evt);
+            }
+        });
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 400, Short.MAX_VALUE)
+            .addGroup(layout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(informar_jButton)
+                .addContainerGap(267, Short.MAX_VALUE))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 300, Short.MAX_VALUE)
+            .addGroup(layout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(informar_jButton)
+                .addContainerGap(266, Short.MAX_VALUE))
         );
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
+
+    private void informar_jButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_informar_jButtonActionPerformed
+
+        
+        //this.myAgent.informarResultado(agenteOrganizador, Vocabulario.TipoJuego.ENCERRADO);
+        
+    }//GEN-LAST:event_informar_jButtonActionPerformed
 
     /**
      * @param args the command line arguments
@@ -89,5 +113,6 @@ public class AgenteJugador_UI extends javax.swing.JFrame {
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JButton informar_jButton;
     // End of variables declaration//GEN-END:variables
 }

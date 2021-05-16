@@ -13,7 +13,7 @@ import es.uja.ssmmaa.ontologia.juegoTablero.JuegoAceptado;
 import es.uja.ssmmaa.ontologia.juegoTablero.Justificacion;
 import es.uja.ssmmaa.ontologia.juegoTablero.ProponerJuego;
 import es.uja.ssmmaa.dots_and_boxes.agentes.AgenteJugador;
-import es.uja.ssmmaa.dots_and_boxes.util.GsonUtil;
+import jade.content.AgentAction;
 import jade.content.Concept;
 import jade.content.lang.Codec;
 import jade.content.onto.OntologyException;
@@ -33,11 +33,11 @@ import java.util.logging.Logger;
  */
 public class TaskResponsePropose_Jugador extends ProposeResponder {
 
-    private final TasksJugador myAgent_jugador;
+    private final AgenteJugador myAgent_jugador;
 
     public TaskResponsePropose_Jugador(Agent a, MessageTemplate mt) {
         super(a, mt);
-        this.myAgent_jugador = (TasksJugador) a;
+        this.myAgent_jugador = (AgenteJugador) a;
         this.myAgent_jugador.addMsgConsole("        --> ProposeResponder(Agent a, MessageTemplate mt)");
     }
 
@@ -66,42 +66,45 @@ public class TaskResponsePropose_Jugador extends ProposeResponder {
      * @return
      */
     private ACLMessage response_propuesta_de_juego(ACLMessage propose) {
-        String content = propose.getContent();
-        this.myAgent_jugador.addMsgConsole("content: " + content);
+        ACLMessage reply = propose.createReply();
 
-        GsonUtil<ProponerJuego> gson = new GsonUtil<>();
+        this.myAgent_jugador.addMsgConsole("content: ");
 
         // ===================================================================
-        ProponerJuego propuesta_de_juego = gson.decode(content, ProponerJuego.class);
+        ProponerJuego propuesta_de_juego = new ProponerJuego();
         InfoJuego info_juego_propuesto = propuesta_de_juego.getInfoJuego();
         Juego juego_propuesto = propuesta_de_juego.getJuego();
         Modo modo_juego_propuesto = propuesta_de_juego.getModo();
 
-        // ===================================================================
-        Justificacion justificacion = new Justificacion();
-        if (justificacion.getJuego().getTipoJuego() == Vocabulario.TipoJuego.TRES_EN_RAYA) {
-            justificacion.setDetalle(Vocabulario.Motivo.TIPO_JUEGO_NO_IMPLEMENTADO);
-        }
-        // TODO
-//        if (this.myAgent_jugador.get_size_actives_games() >= 3) {
-//            justificacion.setDetalle(Vocabulario.Motivo.JUEGOS_ACTIVOS_SUPERADOS);
-//        }
+        if (false) {
+            Justificacion justificacion = new Justificacion();
+            // TODO ...
+            if (this.myAgent_jugador.get_size_actives_games() >= 3) {
+                justificacion.setDetalle(Vocabulario.Motivo.JUEGOS_ACTIVOS_SUPERADOS);
+            }
+            if (juego_propuesto.getTipoJuego() != Vocabulario.TipoJuego.ENCERRADO) {
+                justificacion.setDetalle(Vocabulario.Motivo.TIPO_JUEGO_NO_IMPLEMENTADO);
+            }
 
-        // ===================================================================
-        Juego juego = new Juego();
-        juego.setIdJuego(juego_propuesto.getIdJuego());
-        juego.setTipoJuego(juego_propuesto.getTipoJuego());
+            reply.setPerformative(ACLMessage.REJECT_PROPOSAL);
+        } else {
+            Juego juego = new Juego();
+            juego.setIdJuego(juego_propuesto.getIdJuego());
+            juego.setTipoJuego(juego_propuesto.getTipoJuego());
 
-        JuegoAceptado juego_aceptado = new JuegoAceptado();
-        juego_aceptado.setJuego(juego);
-        // -- TODO
+            JuegoAceptado juego_aceptado = new JuegoAceptado();
+            juego_aceptado.setJuego(juego);
+            // TODO
 //        juego_aceptado.setAgenteJuego(agenteJuego);
-
-        // ===================================================================
-        ACLMessage reply = propose.createReply();
-        reply.setPerformative(ACLMessage.ACCEPT_PROPOSAL);
-        reply.setContent(content);
-
+            try {
+                // TODO revisar -->
+                // meter en el mensaje la aceptacion de juego
+                this.myAgent_jugador.getManager().fillContent(reply, juego_aceptado);
+            } catch (Codec.CodecException | OntologyException ex) {
+                Logger.getLogger(TaskResponsePropose_Jugador.class.getName()).log(Level.SEVERE, null, ex);
+            }
+            reply.setPerformative(ACLMessage.ACCEPT_PROPOSAL);
+        }
         return reply;
     }
 }
