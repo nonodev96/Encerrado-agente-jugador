@@ -32,17 +32,17 @@ import java.util.Vector;
  */
 public class TaskIniciatorSubscription_Jugador extends SubscriptionInitiator {
 
-    private final AgenteJugador agente;
+    private final AgenteJugador myAgent_Jugador;
 
     public TaskIniciatorSubscription_Jugador(Agent a, ACLMessage msg) {
         super(a, msg);
-        this.agente = (AgenteJugador) a;
+        this.myAgent_Jugador = (AgenteJugador) a;
     }
 
     @Override
     protected void handleOutOfSequence(ACLMessage msg) {
         // Ha llegado un mensaje fuera de la secuencia del protocolo
-        agente.addMsgConsole("ERROR en Informar Juego___________________\n" + msg);
+        this.myAgent_Jugador.addMsgConsole("ERROR en Informar Juego___________________\n" + msg);
     }
 
     @Override
@@ -52,39 +52,39 @@ public class TaskIniciatorSubscription_Jugador extends SubscriptionInitiator {
         Iterator it = responses.iterator();
 
         if (responses.isEmpty()) {
-            agente.addMsgConsole("EL ORGANIZADOR NO RESPONDE A LA SUSCRIPCIÓN");
+            this.myAgent_Jugador.addMsgConsole("EL ORGANIZADOR NO RESPONDE A LA SUSCRIPCIÓN");
         }
 
         while (it.hasNext()) {
             ACLMessage msg = (ACLMessage) it.next();
             AID emisor = msg.getSender();
-            manager = agente.getManager();
+            manager = this.myAgent_Jugador.getManager();
 
             if (manager == null) {
-                agente.addMsgConsole("NO SE ENTIENDE EL MENSAJE\n" + msg);
+                this.myAgent_Jugador.addMsgConsole("NO SE ENTIENDE EL MENSAJE\n" + msg);
                 throw new NullPointerException("manager error");
             }
             try {
                 justificacion = (Justificacion) manager.extractContent(msg);
                 switch (msg.getPerformative()) {
                     case NOT_UNDERSTOOD:
-                        agente.addMsgConsole("El agente " + emisor + " no entiende la suscripción\n" + justificacion);
+                        this.myAgent_Jugador.addMsgConsole("El agente " + emisor + " no entiende la suscripción\n" + justificacion);
                         break;
                     case REFUSE:
-                        agente.addMsgConsole("El agente " + emisor + " rechaza la suscripción\n" + justificacion);
+                        myAgent_Jugador.addMsgConsole("El agente " + emisor + " rechaza la suscripción\n" + justificacion);
                         break;
                     case FAILURE:
-                        agente.addMsgConsole("El agente " + emisor + " no ha completado la suscripción\n" + justificacion);
+                        this.myAgent_Jugador.addMsgConsole("El agente " + emisor + " no ha completado la suscripción\n" + justificacion);
                         break;
                     case AGREE:
-                        agente.addSubscription(emisor, this);
-                        agente.addMsgConsole("El agente " + emisor + " ha aceptado la suscripción\n" + justificacion);
+                        this.myAgent_Jugador.addSubscription(emisor, this);
+                        this.myAgent_Jugador.addMsgConsole("El agente " + emisor + " ha aceptado la suscripción\n" + justificacion);
                         break;
                     default:
-                        agente.addMsgConsole("El agente " + emisor + " envía un mensaje desconocido\n" + msg);
+                        this.myAgent_Jugador.addMsgConsole("El agente " + emisor + " envía un mensaje desconocido\n" + msg);
                 }
             } catch (Codec.CodecException | OntologyException ex) {
-                agente.addMsgConsole(emisor.getLocalName() + " El contenido del mensaje es incorrecto\n\t" + ex);
+                this.myAgent_Jugador.addMsgConsole(emisor.getLocalName() + " El contenido del mensaje es incorrecto\n\t" + ex);
             }
         }
     }
@@ -92,22 +92,22 @@ public class TaskIniciatorSubscription_Jugador extends SubscriptionInitiator {
     @Override
     protected void handleInform(ACLMessage inform) {
         ContentElement contenido;
-        ContentManager manager = agente.getManager();
+        ContentManager manager = this.myAgent_Jugador.getManager();
 
         try {
             contenido = manager.extractContent(inform);
 
             if (contenido instanceof ClasificacionJuego) {
                 // Finalización correcta del juego
-                agente.addMsgConsole("CLASIFICACION\n" + (ClasificacionJuego) contenido);
+                this.myAgent_Jugador.addMsgConsole("CLASIFICACION\n" + (ClasificacionJuego) contenido);
             } else {
                 // El juego no ha finalizado
-                agente.addMsgConsole("INCIDENCIA\n" + (IncidenciaJuego) contenido);
+                this.myAgent_Jugador.addMsgConsole("INCIDENCIA\n" + (IncidenciaJuego) contenido);
             }
 
-            agente.setResultado(inform.getSender(), contenido);
+            this.myAgent_Jugador.setResultado(inform.getSender(), contenido);
         } catch (Codec.CodecException | OntologyException ex) {
-            agente.addMsgConsole("Error en el formato del mensaje del agente " + inform.getSender().getLocalName());
+            this.myAgent_Jugador.addMsgConsole("Error en el formato del mensaje del agente " + inform.getSender().getLocalName());
         }
     }
 }

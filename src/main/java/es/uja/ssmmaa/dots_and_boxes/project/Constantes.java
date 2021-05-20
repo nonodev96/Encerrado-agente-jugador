@@ -21,6 +21,10 @@ public interface Constantes {
     public static final int PRIMERO = 0;
     public static final int SEGUNDO = 1;
 
+    public static final int MAX_PARTIDAS = 3;
+    public static final int MAX_JUGADORES_PARTIDA = 2;
+    public static final int SIZE_TABLERO = 5;
+
     public enum Status {
         RET_CANCEL(0), RET_OK(1);
 
