@@ -14,6 +14,7 @@ import es.uja.ssmmaa.ontologia.juegoTablero.Justificacion;
 import es.uja.ssmmaa.ontologia.juegoTablero.ProponerJuego;
 import es.uja.ssmmaa.dots_and_boxes.agentes.AgenteJugador;
 import static es.uja.ssmmaa.dots_and_boxes.project.Constantes.MAX_PARTIDAS;
+import es.uja.ssmmaa.ontologia.encerrado.Encerrado;
 import es.uja.ssmmaa.ontologia.juegoTablero.AgenteJuego;
 import es.uja.ssmmaa.ontologia.juegoTablero.Jugador;
 import jade.content.AgentAction;
@@ -50,7 +51,8 @@ public class TaskResponsePropose_Jugador extends ProposeResponder {
         ProponerJuego proponerJuego;
         ACLMessage reply = null;
         try {
-            proponerJuego = (ProponerJuego) this.myAgent_jugador.getManager().extractContent(propose);
+            Action action = (Action) this.myAgent_jugador.getManager().extractContent(propose);
+            proponerJuego = (ProponerJuego) action.getAction();
             reply = response_propuesta_de_juego(propose, proponerJuego);
 
         } catch (Codec.CodecException | OntologyException ex) {
@@ -73,12 +75,14 @@ public class TaskResponsePropose_Jugador extends ProposeResponder {
         // ===================================================================
         ProponerJuego propuesta_de_juego = proponerJuego;
         InfoJuego info_juego_propuesto = propuesta_de_juego.getInfoJuego();
+        Encerrado encerrado = new Encerrado();
         Juego juego_propuesto = propuesta_de_juego.getJuego();
         Modo modo_juego_propuesto = propuesta_de_juego.getModo();
 
         int errors = 0;
         Justificacion justificacion = new Justificacion();
-        // TODO ...
+        justificacion.setJuego(juego_propuesto);
+        // TODO ... más comprobaciones
         if (this.myAgent_jugador.get_size_actives_games() >= MAX_PARTIDAS) {
             justificacion.setDetalle(Vocabulario.Motivo.JUEGOS_ACTIVOS_SUPERADOS);
             errors++;
@@ -88,8 +92,8 @@ public class TaskResponsePropose_Jugador extends ProposeResponder {
             errors++;
         }
 
-        //justificacion.setDetalle(Vocabulario.Motivo.TIPO_JUEGO_NO_IMPLEMENTADO);
-        if (errors == 0) {
+        this.myAgent_jugador.addMsgConsole("Log PropuestaJuego: " + propuesta_de_juego.toString());
+        if (errors != 0) {
 
             reply.setPerformative(ACLMessage.REJECT_PROPOSAL);
 

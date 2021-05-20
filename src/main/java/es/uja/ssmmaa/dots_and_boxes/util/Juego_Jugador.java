@@ -6,8 +6,12 @@
 package es.uja.ssmmaa.dots_and_boxes.util;
 
 import static es.uja.ssmmaa.dots_and_boxes.project.Constantes.SIZE_TABLERO;
+import es.uja.ssmmaa.ontologia.Vocabulario;
 import es.uja.ssmmaa.ontologia.Vocabulario.Color;
 import es.uja.ssmmaa.ontologia.juegoTablero.FichaJuego;
+import es.uja.ssmmaa.ontologia.juegoTablero.Posicion;
+import java.util.ArrayList;
+import javafx.util.Pair;
 
 /**
  *
@@ -22,14 +26,14 @@ public class Juego_Jugador {
 
     public class NonoTablero {
 
-        int tablero[][] = new int[SIZE_TABLERO][SIZE_TABLERO];
+        ArrayList<Pair<Posicion, Vocabulario.Orientacion>> posiciones;
 
         public NonoTablero() {
-            for (int i = 0; i < SIZE_TABLERO; i++) {
-                for (int j = 0; j < SIZE_TABLERO; j++) {
-                    tablero[i][j] = 0;
-                }
-            }
+            this.posiciones = new ArrayList<>();
+        }
+
+        public void addNewPosition(Posicion posicion, Vocabulario.Orientacion orientacion) {
+            this.posiciones.add(new Pair(posicion, orientacion));
         }
 
         /** <
@@ -50,17 +54,22 @@ public class Juego_Jugador {
          */
         public void show() {
             System.out.println("========================================");
-            for (int i = 0; i < SIZE_TABLERO; i++) {
-                for (int j = 0; j < SIZE_TABLERO; j++) {
-                    if (tablero[i][j] == 0) {
-                        System.out.print(" *");
+            for (int x = 0; x < SIZE_TABLERO; x++) {
+                for (int y = 0; y < SIZE_TABLERO; y++) {
+                    System.out.print("\t *");
+                    for (Pair<Posicion, Vocabulario.Orientacion> position : posiciones) {
+                        if (position.getKey().getCoorX() == x && position.getKey().getCoorY() == y) {
+                            if (position.getValue() == Vocabulario.Orientacion.HORIZONTAL) {
+                                System.out.print(" - ");
 
-                    } else {
-                        System.out.print("  ");
-
+                            } else {
+                                System.out.print(" | ");
+                            }
+                        }
                     }
                     System.out.print(" |");
                 }
+                System.out.println("");
                 System.out.println("");
             }
             System.out.println("========================================");

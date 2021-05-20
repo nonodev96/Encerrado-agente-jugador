@@ -38,6 +38,7 @@ public class ConsolaJFrame extends javax.swing.JFrame {
         if (isVisible() != true) {
             setVisible(true);
         }
+        System.out.println(mensaje);
         salida.append(mensaje);
         salida.append("\n");
     }

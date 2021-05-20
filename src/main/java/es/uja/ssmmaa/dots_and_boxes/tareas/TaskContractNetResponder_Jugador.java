@@ -77,7 +77,7 @@ public class TaskContractNetResponder_Jugador extends ContractNetResponder {
 
         } else {
             replyPropose.setPerformative(ACLMessage.REFUSE);
-            estadoPartida.setEstadoPartida(Vocabulario.Estado.SEGUIR_JUGANDO);
+            estadoPartida.setEstadoPartida(Vocabulario.Estado.ABANDONO);
 
         }
 
