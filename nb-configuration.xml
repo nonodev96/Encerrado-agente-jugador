@@ -10,7 +10,7 @@ Without this configuration present, some functionality in the IDE may be limited
         <configurations>
             <configuration id="localhost" profiles=""/>
             <configuration id="suleiman" profiles=""/>
-            <configuration id="localhost_clone" profiles=""/>
+            <configuration id="localhost-nono-2players" profiles=""/>
         </configurations>
     </config-data>
 </project-shared-configuration>

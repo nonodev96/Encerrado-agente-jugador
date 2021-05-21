@@ -28,8 +28,10 @@ import es.uja.ssmmaa.dots_and_boxes.tareas.SubscripcionDF;
 import es.uja.ssmmaa.dots_and_boxes.util.GestorSubscripciones;
 
 import com.google.gson.Gson;
+import static es.uja.ssmmaa.dots_and_boxes.project.Constantes.MY_GAME;
 import es.uja.ssmmaa.dots_and_boxes.tareas.TaskContractNetResponder_Jugador;
 import es.uja.ssmmaa.dots_and_boxes.util.Juego_Jugador;
+import es.uja.ssmmaa.ontologia.encerrado.Encerrado;
 import es.uja.ssmmaa.ontologia.juegoTablero.Jugador;
 import es.uja.ssmmaa.ontologia.juegoTablero.PedirMovimiento;
 import es.uja.ssmmaa.ontologia.juegoTablero.Posicion;
@@ -136,7 +138,7 @@ public class AgenteJugador extends Agent implements SubscripcionDF, TasksJugador
         dfd.setName(getAID());
         ServiceDescription sd = new ServiceDescription();
         sd.setType(Vocabulario.TipoServicio.JUGADOR.name());
-        sd.setName(Vocabulario.TipoJuego.ENCERRADO.name());
+        sd.setName(MY_GAME.name());
         dfd.addServices(sd);
         try {
             DFService.register(this, dfd);
@@ -175,7 +177,7 @@ public class AgenteJugador extends Agent implements SubscripcionDF, TasksJugador
         //Registro de la Ontología
         this.manager = new ContentManager();
         try {
-            this.ontology = Vocabulario.getOntology(TipoJuego.ENCERRADO);
+            this.ontology = Vocabulario.getOntology(MY_GAME);
             this.manager = (ContentManager) getContentManager();
             this.manager.registerLanguage(this.codec);
             this.manager.registerOntology(this.ontology);
@@ -424,14 +426,6 @@ public class AgenteJugador extends Agent implements SubscripcionDF, TasksJugador
         posicion.setCoorX(2);
         posicion.setCoorY(2);
 
-        /*
-         ==============
-        | * - *
-        | |
-        | *
-        |
-         ==============
-         */
         movimiento.setPosicion(posicion);
         movimientoEntregadoLinea.setMovimiento(movimiento);
         movimientoEntregadoLinea.setOrientacion(Vocabulario.Orientacion.HORIZONTAL);
@@ -445,6 +439,26 @@ public class AgenteJugador extends Agent implements SubscripcionDF, TasksJugador
 
     private Juego_Jugador getJuego(String idJuego) {
         return this.juegosMap.get(idJuego);
+    }
+
+    private void setJuego(String idJuego, Juego_Jugador juego_Jugador) {
+        this.juegosMap.put(idJuego, juego_Jugador);
+    }
+
+    public void CrearJuego(Juego juegoPropuesto_Juego, Encerrado juegoPropuesto_Encerrado, Vocabulario.Modo juegoPropuesto_Modo) {
+
+        String idJuego = juegoPropuesto_Juego.getIdJuego();
+        TipoJuego tipoJuego = juegoPropuesto_Juego.getTipoJuego();
+        int numJugadores = juegoPropuesto_Encerrado.getNumJugadores();
+        int filas = juegoPropuesto_Encerrado.getFilas();
+        int columnas = juegoPropuesto_Encerrado.getColumnas();
+
+        Juego_Jugador j = this.getJuego(idJuego);
+        if (j == null) {
+            j = new Juego_Jugador();
+        }
+       
+
     }
 
 }

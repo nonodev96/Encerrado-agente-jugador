@@ -73,7 +73,6 @@ public class AgenteJugador_UI extends javax.swing.JFrame {
     private void informar_jButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_informar_jButtonActionPerformed
 
         
-        //this.myAgent.informarResultado(agenteOrganizador, Vocabulario.TipoJuego.ENCERRADO);
         
     }//GEN-LAST:event_informar_jButtonActionPerformed
 

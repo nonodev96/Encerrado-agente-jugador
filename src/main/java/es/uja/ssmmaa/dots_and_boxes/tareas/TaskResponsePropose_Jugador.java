@@ -14,6 +14,7 @@ import es.uja.ssmmaa.ontologia.juegoTablero.Justificacion;
 import es.uja.ssmmaa.ontologia.juegoTablero.ProponerJuego;
 import es.uja.ssmmaa.dots_and_boxes.agentes.AgenteJugador;
 import static es.uja.ssmmaa.dots_and_boxes.project.Constantes.MAX_PARTIDAS;
+import static es.uja.ssmmaa.dots_and_boxes.project.Constantes.MY_GAME;
 import es.uja.ssmmaa.ontologia.encerrado.Encerrado;
 import es.uja.ssmmaa.ontologia.juegoTablero.AgenteJuego;
 import es.uja.ssmmaa.ontologia.juegoTablero.Jugador;
@@ -48,11 +49,10 @@ public class TaskResponsePropose_Jugador extends ProposeResponder {
     @Override
     protected ACLMessage prepareResponse(ACLMessage propose) throws NotUnderstoodException, RefuseException {
         this.myAgent_jugador.addMsgConsole("        --> prepareResponse");
-        ProponerJuego proponerJuego;
         ACLMessage reply = null;
         try {
             Action action = (Action) this.myAgent_jugador.getManager().extractContent(propose);
-            proponerJuego = (ProponerJuego) action.getAction();
+            ProponerJuego proponerJuego = (ProponerJuego) action.getAction();
             reply = response_propuesta_de_juego(propose, proponerJuego);
 
         } catch (Codec.CodecException | OntologyException ex) {
@@ -74,20 +74,30 @@ public class TaskResponsePropose_Jugador extends ProposeResponder {
 
         // ===================================================================
         ProponerJuego propuesta_de_juego = proponerJuego;
-        InfoJuego info_juego_propuesto = propuesta_de_juego.getInfoJuego();
-        Encerrado encerrado = new Encerrado();
-        Juego juego_propuesto = propuesta_de_juego.getJuego();
-        Modo modo_juego_propuesto = propuesta_de_juego.getModo();
+        Juego juegoPropuesto_Juego = propuesta_de_juego.getJuego();
+        Encerrado juegoPropuesto_Encerrado = (Encerrado) propuesta_de_juego.getInfoJuego();
+        Modo juegoPropuesto_Modo = propuesta_de_juego.getModo();
+
+        int numJugadores = juegoPropuesto_Encerrado.getNumJugadores();
 
         int errors = 0;
         Justificacion justificacion = new Justificacion();
-        justificacion.setJuego(juego_propuesto);
+        justificacion.setJuego(juegoPropuesto_Juego);
+
         // TODO ... más comprobaciones
+        if (numJugadores < 2 || numJugadores >= 6) {
+            justificacion.setDetalle(Vocabulario.Motivo.TIPO_JUEGO_NO_IMPLEMENTADO);
+            errors++;
+        }
+        if (juegoPropuesto_Modo == Modo.TORNEO) {
+            justificacion.setDetalle(Vocabulario.Motivo.TIPO_JUEGO_NO_IMPLEMENTADO);
+            errors++;
+        }
         if (this.myAgent_jugador.get_size_actives_games() >= MAX_PARTIDAS) {
             justificacion.setDetalle(Vocabulario.Motivo.JUEGOS_ACTIVOS_SUPERADOS);
             errors++;
         }
-        if (juego_propuesto.getTipoJuego() != Vocabulario.TipoJuego.ENCERRADO) {
+        if (juegoPropuesto_Juego.getTipoJuego() != MY_GAME) {
             justificacion.setDetalle(Vocabulario.Motivo.TIPO_JUEGO_NO_IMPLEMENTADO);
             errors++;
         }
@@ -104,8 +114,8 @@ public class TaskResponsePropose_Jugador extends ProposeResponder {
             }
         } else {
             Juego juego = new Juego();
-            juego.setIdJuego(juego_propuesto.getIdJuego());
-            juego.setTipoJuego(juego_propuesto.getTipoJuego());
+            juego.setIdJuego(juegoPropuesto_Juego.getIdJuego());
+            juego.setTipoJuego(juegoPropuesto_Juego.getTipoJuego());
 
             JuegoAceptado juegoAceptado = new JuegoAceptado();
             juegoAceptado.setJuego(juego);
@@ -122,6 +132,8 @@ public class TaskResponsePropose_Jugador extends ProposeResponder {
             } catch (Codec.CodecException | OntologyException ex) {
                 this.myAgent_jugador.addMsgConsole("Error al meter la juego aceptado de " + this.myAgent_jugador.getLocalName() + " para " + propose.getSender().getLocalName());
             }
+
+            this.myAgent_jugador.CrearJuego(juegoPropuesto_Juego, juegoPropuesto_Encerrado, juegoPropuesto_Modo);
         }
 
         return reply;
