@@ -25,8 +25,12 @@ public interface Constantes {
     public static final int MAX_PARTIDAS = 3;
     public static final int MAX_JUGADORES_PARTIDA = 2;
     public static final int SIZE_TABLERO = 8;
-    
+
     public static final TipoJuego MY_GAME = TipoJuego.QUATRO;
+
+    public enum NonoOrientacion {
+        HORIZONTAL, VERTICAL;
+    }
 
     public enum Status {
         RET_CANCEL(0), RET_OK(1);
