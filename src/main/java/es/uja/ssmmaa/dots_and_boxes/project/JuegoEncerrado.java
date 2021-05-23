@@ -17,6 +17,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javafx.util.Pair;
 
 /**
  *
@@ -240,20 +241,7 @@ public class JuegoEncerrado {
             System.out.println("====y0==y1==y2==y3==y4==y5==y6==y7==");
         }
 
-        public Posicion theBestIA() {
-            for (int x = 0; x < SIZE_TABLERO; x++) {
-                for (int y = 0; y < SIZE_TABLERO; y++) {
-                    NonoPosicion test = new NonoPosicion(x, y);
-                    if (checkPoints(test, Orientacion.HORIZONTAL)) {
-                        return test;
-                    }
-                    if (checkPoints(test, Orientacion.VERTICAL)) {
-                        return test;
-                    }
-                }
-            }
-            return null;
-        }
+        
 
         public boolean checkIfExist(NonoPosicion pos, Orientacion ori) {
             NonoFicha[] pos_ori = this.positions.getOrDefault(pos, new NonoFicha[2]);
@@ -268,6 +256,33 @@ public class JuegoEncerrado {
 
             return false;
         }
+
+        public boolean checkAllWalls(NonoPosicion pos) {
+            int[] checkPositionsX = new int[]{+0, +1, +0};
+            int[] checkPositionsY = new int[]{+0, +0, +1};
+            int checkPositionLenght = 3;
+            boolean allWalls = true;
+            for (int iter = 0; iter < checkPositionLenght; iter++) {
+                int x = checkPositionsX[iter];
+                int y = checkPositionsY[iter];
+                NonoPosicion test_wall = new NonoPosicion(pos.getCoorX() + x, pos.getCoorY() + y);
+
+                if (iter == 0 || iter == 1) {
+                    if (!this.checkIfExist(test_wall, Vocabulario.Orientacion.HORIZONTAL)) {
+                        allWalls = false;
+                    }
+                }
+
+                if (iter == 0 || iter == 2) {
+                    if (!this.checkIfExist(test_wall, Vocabulario.Orientacion.VERTICAL)) {
+                        allWalls = false;
+                    }
+                }
+            }
+            return allWalls;
+        }
+        
+        
 
         public static Object clone(NonoTablero object) {
             NonoTablero copy = new NonoTablero();
@@ -288,7 +303,6 @@ public class JuegoEncerrado {
             }
             return copy;
         }
-
     }
 
     /**
