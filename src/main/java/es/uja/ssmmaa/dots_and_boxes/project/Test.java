@@ -55,24 +55,24 @@ public class Test {
 //        g.tablero.addNewPosition(new JuegoEncerrado.NonoPosicion(0, 1), nonoFicha_vertical);
 
         //TEST
-        int depth = 2;
+        int depth = 3;
         Node n = new Node();
         n.ficha = new JuegoEncerrado.NonoFicha();
         n.ficha.setColor(Vocabulario.Color.NEGRO);
         n.posicion = new NonoPosicion(0, 1);
-        n.tablero_test = (NonoTablero) g.tablero.clone();
-        NonoTablero g2 = (NonoTablero) g.tablero.clone();
-//        Pair<Integer, Node> p = Game_MiniMax.minimax(g, n, depth, true);
-//        int mm_value = p.getKey();
-//        Node mm_node = p.getValue();
+        n.tablero_test = (NonoTablero) NonoTablero.clone(g.tablero);
+        NonoTablero g2 = (NonoTablero) NonoTablero.clone(g.tablero);
+        Pair<Integer, Node> p = Game_MiniMax.minimax(g, n, depth, true);
+        int mm_value = p.getKey();
+        Node mm_node = p.getValue();
 
         // DATA
-//        System.out.println("N" + n.toString());
-//        System.out.println("Node: " + n.posicion + " - " + n.ficha + " ->   " + mm_value + " : " + mm_node);
-//        g.tablero.checkPoints(new JuegoEncerrado.NonoPosicion(0, 0), Vocabulario.Orientacion.VERTICAL);
+        System.out.println("N" + n.toString());
+        System.out.println("Node: " + n.posicion + " - " + n.ficha + " ->   " + mm_value + " : " + mm_node);
+        g.tablero.checkPoints(new JuegoEncerrado.NonoPosicion(0, 0), Vocabulario.Orientacion.VERTICAL);
         g.tablero.addNewPosition(new JuegoEncerrado.NonoPosicion(0, 1), nonoFicha_vertical);
         g.tablero.show();
-        
+
         g2.show();
         System.out.println("G1" + g.tablero.positions);
         System.out.println("G2" + g2.positions);

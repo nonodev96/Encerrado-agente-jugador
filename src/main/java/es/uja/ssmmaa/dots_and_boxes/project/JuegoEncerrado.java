@@ -32,7 +32,7 @@ public class JuegoEncerrado {
         this.nonoTablero = new NonoTablero();
     }
 
-    public static class NonoTablero implements Cloneable {
+    public static class NonoTablero {
 
         public HashMap<NonoPosicion, NonoFicha[]> positions;
 
@@ -269,14 +269,22 @@ public class JuegoEncerrado {
             return false;
         }
 
-        @Override
-        public Object clone() {
+        public static Object clone(NonoTablero object) {
             NonoTablero copy = new NonoTablero();
-           
-            for (Map.Entry<NonoPosicion, NonoFicha[]> entry : positions.entrySet()) {
+
+            for (Map.Entry<NonoPosicion, NonoFicha[]> entry : object.positions.entrySet()) {
                 NonoPosicion key = entry.getKey();
                 NonoFicha[] value = entry.getValue();
-                copy.positions.put(key, value);
+                NonoFicha[] value_copy = new NonoFicha[2];
+                for (NonoOrientacion orientacion : NonoOrientacion.values()) {
+                    if (value[orientacion.ordinal()] != null) {
+                        value_copy[orientacion.ordinal()] = new NonoFicha();
+                        value_copy[orientacion.ordinal()].setColor(value[orientacion.ordinal()].getColor());
+                        value_copy[orientacion.ordinal()].setJugador(value[orientacion.ordinal()].getJugador());
+                        value_copy[orientacion.ordinal()].setOrientacion(value[orientacion.ordinal()].getOrientacion());
+                    }
+                }
+                copy.positions.put(key, value_copy);
             }
             return copy;
         }

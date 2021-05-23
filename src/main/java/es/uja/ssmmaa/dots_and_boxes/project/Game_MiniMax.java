@@ -74,14 +74,14 @@ public class Game_MiniMax {
             if (graph.tablero.isPositionValid(new_node.posicion)) {
                 if (!graph.tablero.checkIfExist(new_node.posicion, Vocabulario.Orientacion.HORIZONTAL)) {
                     new_node.ficha.setOrientacion(Vocabulario.Orientacion.HORIZONTAL);
-                    new_node.tablero_test = (NonoTablero) graph.tablero.clone();
-//                    new_node.tablero_test.addNewPosition(new_node.posicion, new_node.ficha);
+                    new_node.tablero_test = (NonoTablero) NonoTablero.clone(graph.tablero);
+                    new_node.tablero_test.addNewPosition(new_node.posicion, new_node.ficha);
                     nodes.add(new_node);
                 }
                 if (!graph.tablero.checkIfExist(new_node.posicion, Vocabulario.Orientacion.VERTICAL)) {
                     new_node.ficha.setOrientacion(Vocabulario.Orientacion.VERTICAL);
-                    new_node.tablero_test = (NonoTablero) graph.tablero.clone();
-//                    new_node.tablero_test.addNewPosition(new_node.posicion, new_node.ficha);
+                    new_node.tablero_test = (NonoTablero) NonoTablero.clone(graph.tablero);
+                    new_node.tablero_test.addNewPosition(new_node.posicion, new_node.ficha);
                     nodes.add(new_node);
                 }
             }
@@ -105,7 +105,6 @@ public class Game_MiniMax {
         }
         // Esto creo que deberia ir en childOfNode
         // TODO
-        t.addNewPosition(pos, ficha);
 
         int value = 0;
 //        if (pos.getCoorX() == 0) {
