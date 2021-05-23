@@ -30,7 +30,7 @@ import es.uja.ssmmaa.dots_and_boxes.util.GestorSubscripciones;
 import com.google.gson.Gson;
 import static es.uja.ssmmaa.dots_and_boxes.project.Constantes.MY_GAME;
 import es.uja.ssmmaa.dots_and_boxes.tareas.TaskContractNetResponder_Jugador;
-import es.uja.ssmmaa.dots_and_boxes.util.Juego_Jugador;
+import es.uja.ssmmaa.dots_and_boxes.project.JuegoEncerrado;
 import es.uja.ssmmaa.ontologia.encerrado.Encerrado;
 import es.uja.ssmmaa.ontologia.juegoTablero.Jugador;
 import es.uja.ssmmaa.ontologia.juegoTablero.PedirMovimiento;
@@ -112,7 +112,7 @@ public class AgenteJugador extends Agent implements SubscripcionDF, TasksJugador
     public ArrayList<Juego> list_of_games;
     public LinkedList<String> mensajes;
 
-    private Map<String, Juego_Jugador> juegosMap;
+    private Map<String, JuegoEncerrado> juegosMap;
 
     public AgenteJugador() {
         this.gson = new Gson();
@@ -415,12 +415,12 @@ public class AgenteJugador extends Agent implements SubscripcionDF, TasksJugador
         int maxRondas = partida.getMaxRondas();
         int ronda = partida.getRonda();
 
-        Juego_Jugador nonoJuegoJugador = this.getJuego(idJuego);
+        JuegoEncerrado nonoJuegoJugador = this.getJuego(idJuego);
 
         MovimientoEntregadoLinea movimientoEntregadoLinea = new MovimientoEntregadoLinea();
         movimientoEntregadoLinea.setPartida(partida);
         Movimiento movimiento = new Movimiento();
-        movimiento.setFicha(nonoJuegoJugador.fichaJuego);
+        movimiento.setFicha(nonoJuegoJugador.ficha);
 
         Posicion posicion = new Posicion();
         posicion.setCoorX(2);
@@ -437,11 +437,11 @@ public class AgenteJugador extends Agent implements SubscripcionDF, TasksJugador
         }
     }
 
-    private Juego_Jugador getJuego(String idJuego) {
+    private JuegoEncerrado getJuego(String idJuego) {
         return this.juegosMap.get(idJuego);
     }
 
-    private void setJuego(String idJuego, Juego_Jugador juego_Jugador) {
+    private void setJuego(String idJuego, JuegoEncerrado juego_Jugador) {
         this.juegosMap.put(idJuego, juego_Jugador);
     }
 
@@ -453,9 +453,9 @@ public class AgenteJugador extends Agent implements SubscripcionDF, TasksJugador
         int filas = juegoPropuesto_Encerrado.getFilas();
         int columnas = juegoPropuesto_Encerrado.getColumnas();
 
-        Juego_Jugador j = this.getJuego(idJuego);
+        JuegoEncerrado j = this.getJuego(idJuego);
         if (j == null) {
-            j = new Juego_Jugador();
+            j = new JuegoEncerrado();
         }
        
 
