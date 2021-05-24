@@ -241,8 +241,6 @@ public class JuegoEncerrado {
             System.out.println("====y0==y1==y2==y3==y4==y5==y6==y7==");
         }
 
-        
-
         public boolean checkIfExist(NonoPosicion pos, Orientacion ori) {
             NonoFicha[] pos_ori = this.positions.getOrDefault(pos, new NonoFicha[2]);
             if (pos_ori != null) {
@@ -281,8 +279,6 @@ public class JuegoEncerrado {
             }
             return allWalls;
         }
-        
-        
 
         public static Object clone(NonoTablero object) {
             NonoTablero copy = new NonoTablero();
@@ -343,7 +339,7 @@ public class JuegoEncerrado {
     /**
      *
      */
-    public static class NonoFicha extends Ficha {
+    public static class NonoFicha extends Ficha implements Cloneable {
 
         public Orientacion orientacion;
 
@@ -367,6 +363,16 @@ public class JuegoEncerrado {
 
         public void setOrientacion(Orientacion orientacion) {
             this.orientacion = orientacion;
+        }
+
+        // Overriding clone() method of Object class
+        public Object clone() {
+            try {
+                return (NonoFicha) super.clone();
+            } catch (CloneNotSupportedException ex) {
+                Logger.getLogger(JuegoEncerrado.class.getName()).log(Level.SEVERE, null, ex);
+            }
+            return null;
         }
 
         @Override

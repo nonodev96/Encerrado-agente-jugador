@@ -160,17 +160,21 @@ public class Game_MiniMax {
     }
 
     public static Pair<NonoPosicion, NonoFicha> theBestIA(NonoTablero object) {
-        int value = 0;
+        int bestValue = 0;
         NonoPosicion test;
-        NonoPosicion pos;
+        NonoPosicion pos = new NonoPosicion(0, 0);
+
+        NonoPosicion posicion = new NonoPosicion(0, 0);
         NonoPosicion posicionToReturn = new NonoPosicion(0, 0);
         NonoFicha fichaToReturn = new NonoFicha();
+        NonoFicha ficha = new NonoFicha();
         NonoTablero copy;
         for (int x = 0; x < SIZE_TABLERO; x++) {
             for (int y = 0; y < SIZE_TABLERO; y++) {
-
+                int value = 0;
+                pos.setCoorX(x);
+                pos.setCoorY(y);
                 copy = (NonoTablero) NonoTablero.clone(object);
-                pos = new NonoPosicion(x, y);
 
                 // Caja de la derecha y la izquierda
                 if (copy.isPositionValid(pos) && !copy.checkIfExist(pos, Vocabulario.Orientacion.VERTICAL)) {
@@ -182,16 +186,16 @@ public class Game_MiniMax {
                     // caja
                     if (copy.checkAllWalls(test)) {
                         value++;
-                        posicionToReturn = new NonoPosicion(pos.getCoorX(), pos.getCoorY());
-                        fichaToReturn = f;
+                        posicion = new NonoPosicion(pos.getCoorX(), pos.getCoorY());
+                        ficha = (NonoFicha) f.clone();
                     }
 
                     // Izquierda
                     test = new NonoPosicion(x, y - 1);
                     if (copy.isPositionValid(test) && copy.checkAllWalls(test)) {
                         value++;
-                        posicionToReturn = new NonoPosicion(pos.getCoorX(), pos.getCoorY());
-                        fichaToReturn = f;
+                        posicion = new NonoPosicion(pos.getCoorX(), pos.getCoorY());
+                        ficha = (NonoFicha) f.clone();
                     }
                 }
 
@@ -205,22 +209,28 @@ public class Game_MiniMax {
                     // caja
                     if (copy.checkAllWalls(test)) {
                         value++;
-                        posicionToReturn = new NonoPosicion(pos.getCoorX(), pos.getCoorY());
-                        fichaToReturn = f;
+                        posicion = new NonoPosicion(pos.getCoorX(), pos.getCoorY());
+                        ficha = (NonoFicha) f.clone();
                     }
 
                     // arriba
                     test = new NonoPosicion(x - 1, y);
                     if (copy.isPositionValid(test) && copy.checkAllWalls(test)) {
                         value++;
-                        posicionToReturn = new NonoPosicion(pos.getCoorX(), pos.getCoorY());
-                        fichaToReturn = f;
+                        posicion = new NonoPosicion(pos.getCoorX(), pos.getCoorY());
+                        ficha = (NonoFicha) f.clone();
                     }
+                }
+
+                if (value > bestValue) {
+                    bestValue = value;
+                    fichaToReturn = new NonoFicha(null, null, ficha.getOrientacion());
+                    posicionToReturn = new NonoPosicion(posicion.getCoorX(), posicion.getCoorY());
                 }
 
             }
         }
-        System.out.println("V: " + value);
+        System.out.println("V: " + bestValue);
         return new Pair<>(posicionToReturn, fichaToReturn);
     }
 }
