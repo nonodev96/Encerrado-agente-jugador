@@ -37,51 +37,68 @@ public class Test {
         NonoTablero tablero = j.nonoTablero;
 
         tablero.addNewPosition(new NonoPosicion(0, 0), nonoFicha_horizontal);
-        tablero.addNewPosition(new NonoPosicion(0, 0), nonoFicha_rival_vertical);
-        tablero.addNewPosition(new NonoPosicion(1, 0), nonoFicha_horizontal);
-        tablero.addNewPosition(new NonoPosicion(0, 1), nonoFicha_rival_horizontal);
-        tablero.addNewPosition(new NonoPosicion(1, 1), nonoFicha_horizontal);
-        tablero.addNewPosition(new NonoPosicion(1, 1), nonoFicha_rival_vertical);
-        tablero.addNewPosition(new NonoPosicion(2, 1), nonoFicha_horizontal);
-        tablero.addNewPosition(new NonoPosicion(1, 2), nonoFicha_rival_vertical);
-        tablero.addNewPosition(new NonoPosicion(0, 2), nonoFicha_vertical);
-        tablero.addNewPosition(new NonoPosicion(1, 0), nonoFicha_rival_vertical);
-        tablero.addNewPosition(new NonoPosicion(2, 0), nonoFicha_vertical);
-        tablero.addNewPosition(new NonoPosicion(3, 0), nonoFicha_rival_horizontal);
+//        tablero.addNewPosition(new NonoPosicion(0, 0), nonoFicha_rival_vertical);
+//        tablero.addNewPosition(new NonoPosicion(1, 0), nonoFicha_horizontal);
+//        tablero.addNewPosition(new NonoPosicion(0, 1), nonoFicha_rival_horizontal);
+//        tablero.addNewPosition(new NonoPosicion(1, 1), nonoFicha_horizontal);
+//        tablero.addNewPosition(new NonoPosicion(1, 1), nonoFicha_rival_vertical);
+//        tablero.addNewPosition(new NonoPosicion(2, 1), nonoFicha_horizontal);
+//        tablero.addNewPosition(new NonoPosicion(1, 2), nonoFicha_rival_vertical);
+//        tablero.addNewPosition(new NonoPosicion(0, 2), nonoFicha_vertical);
+//        tablero.addNewPosition(new NonoPosicion(1, 0), nonoFicha_rival_vertical);
+//        tablero.addNewPosition(new NonoPosicion(2, 0), nonoFicha_vertical);
+//        tablero.addNewPosition(new NonoPosicion(3, 0), nonoFicha_rival_horizontal);
 //        tablero.addNewPosition(new NonoPosicion(3, 1), nonoFicha_vertical);
 //        tablero.addNewPosition(new NonoPosicion(2, 0), nonoFicha_rival_horizontal);
 //        tablero.addNewPosition(new NonoPosicion(0, 1), nonoFicha_vertical);
-        tablero.addNewPosition(new NonoPosicion(3, 0), nonoFicha_vertical);
-        tablero.addNewPosition(new NonoPosicion(4, 0), nonoFicha_horizontal);
-        tablero.addNewPosition(new NonoPosicion(4, 1), nonoFicha_vertical);
-        tablero.addNewPosition(new NonoPosicion(2, 1), nonoFicha_vertical);
+//        tablero.addNewPosition(new NonoPosicion(3, 0), nonoFicha_vertical);
+//        tablero.addNewPosition(new NonoPosicion(4, 0), nonoFicha_horizontal);
+//        tablero.addNewPosition(new NonoPosicion(4, 1), nonoFicha_vertical);
+//        tablero.addNewPosition(new NonoPosicion(2, 1), nonoFicha_vertical);
 
         //TEST
-        int depth = 3;
+        int depth = 1;
 
-        Node root = new Node();
-        root.ficha = new JuegoEncerrado.NonoFicha();
-        root.ficha.setColor(Vocabulario.Color.NEGRO);
-        root.posicion = new NonoPosicion(0, 0);
-        root.tablero_test = (NonoTablero) NonoTablero.clone(tablero);
-        if (true) {
 //            Pair<NonoPosicion, NonoFicha> p = Game_MiniMax.theBestIA(g.tablero);
 //            System.out.println("P :" + p.getKey());
 //            System.out.println("P :" + p.getValue());
+        int pointsPlayerA = 0;
+        int pointsPlayerB = 0;
+
+        // Simulamos una partida de 21 movimientos
+        for (int i = 0; i < 1; i++) {
+
+            boolean alternate = i % 2 == 0;
+
+            Node root = new Node();
+            root.ficha = new JuegoEncerrado.NonoFicha();
+            root.ficha.setColor(alternate ? Vocabulario.Color.NEGRO : Vocabulario.Color.ROJO);
+            root.posicion = new NonoPosicion(0, 0);
+            root.tablero_test = (NonoTablero) NonoTablero.clone(tablero);
+
             Pair<Integer, Node> p = Game_MiniMax.minimax(root, depth, true);
             int mm_value = p.getKey();
             Node mm_node = p.getValue();
 
+            tablero.addNewPosition(mm_node.posicion, mm_node.ficha);
             // DATA
             System.out.println("");
             System.out.println("root" + root.toString());
             System.out.println("Node:    " + root.posicion + " - " + root.ficha + " ->   ");
             System.out.println("Minimax: " + mm_node.posicion + " - " + mm_node.ficha + " with (" + mm_value + ") points");
+
+            if (alternate) {
+                pointsPlayerA += mm_value;
+            } else {
+                pointsPlayerB += mm_value;
+            }
+
+        }
+        System.out.println("PointsPlayerA: " + pointsPlayerA);
+        System.out.println("PointsPlayerB: " + pointsPlayerB);
+        tablero.show();
 //            int v = Game_MiniMax.analizeSection(tablero, new NonoPosicion(3, 1), nonoFicha_vertical);
 //            System.out.println("V" + v);
-        }
-
-        tablero.show();
 
 //        System.out.println("G1" + g.tablero.positions);
     }
