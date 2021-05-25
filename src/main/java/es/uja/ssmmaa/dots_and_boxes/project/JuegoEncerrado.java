@@ -26,7 +26,6 @@ import javafx.util.Pair;
 public class JuegoEncerrado {
 
     // Debug y pruebas para mantener una partida
-    public Ficha ficha;
     public NonoTablero nonoTablero;
 
     public JuegoEncerrado() {
@@ -305,7 +304,7 @@ public class JuegoEncerrado {
      * Esta clase es static ya que Posicion lo exige, ademas se necesita los
      * métodos de hashCode y equals para que el HashMap funcione
      */
-    public static class NonoPosicion extends Posicion {
+    public static class NonoPosicion extends Posicion implements Cloneable {
 
         public NonoPosicion(int CordX, int CordY) {
             super(CordX, CordY);

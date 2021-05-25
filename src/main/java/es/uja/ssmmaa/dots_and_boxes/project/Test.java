@@ -35,27 +35,26 @@ public class Test {
 
         JuegoEncerrado j = new JuegoEncerrado();
         NonoTablero tablero = j.nonoTablero;
-        Graph g = new Graph(tablero);
 
-        g.tablero.addNewPosition(new NonoPosicion(0, 0), nonoFicha_horizontal);
-        g.tablero.addNewPosition(new NonoPosicion(0, 0), nonoFicha_rival_vertical);
-        g.tablero.addNewPosition(new NonoPosicion(1, 0), nonoFicha_horizontal);
-        g.tablero.addNewPosition(new NonoPosicion(0, 1), nonoFicha_rival_horizontal);
-        g.tablero.addNewPosition(new NonoPosicion(1, 1), nonoFicha_horizontal);
-        g.tablero.addNewPosition(new NonoPosicion(1, 1), nonoFicha_rival_vertical);
-        g.tablero.addNewPosition(new NonoPosicion(2, 1), nonoFicha_horizontal);
-        g.tablero.addNewPosition(new NonoPosicion(1, 2), nonoFicha_rival_vertical);
-        g.tablero.addNewPosition(new NonoPosicion(0, 2), nonoFicha_vertical);
-        g.tablero.addNewPosition(new NonoPosicion(1, 0), nonoFicha_rival_vertical);
-        g.tablero.addNewPosition(new NonoPosicion(2, 0), nonoFicha_vertical);
-        g.tablero.addNewPosition(new NonoPosicion(3, 0), nonoFicha_rival_horizontal);
-        g.tablero.addNewPosition(new NonoPosicion(3, 1), nonoFicha_vertical);
-        g.tablero.addNewPosition(new NonoPosicion(2, 0), nonoFicha_rival_horizontal);
-        g.tablero.addNewPosition(new NonoPosicion(0, 1), nonoFicha_vertical);
-        g.tablero.addNewPosition(new NonoPosicion(3, 0), nonoFicha_rival_vertical);
-        g.tablero.addNewPosition(new NonoPosicion(4, 0), nonoFicha_vertical);
-        g.tablero.addNewPosition(new NonoPosicion(5, 0), nonoFicha_rival_horizontal);
-//        g.tablero.addNewPosition(new NonoPosicion(4, 1), nonoFicha_vertical);
+        tablero.addNewPosition(new NonoPosicion(0, 0), nonoFicha_horizontal);
+        tablero.addNewPosition(new NonoPosicion(0, 0), nonoFicha_rival_vertical);
+        tablero.addNewPosition(new NonoPosicion(1, 0), nonoFicha_horizontal);
+        tablero.addNewPosition(new NonoPosicion(0, 1), nonoFicha_rival_horizontal);
+        tablero.addNewPosition(new NonoPosicion(1, 1), nonoFicha_horizontal);
+        tablero.addNewPosition(new NonoPosicion(1, 1), nonoFicha_rival_vertical);
+        tablero.addNewPosition(new NonoPosicion(2, 1), nonoFicha_horizontal);
+        tablero.addNewPosition(new NonoPosicion(1, 2), nonoFicha_rival_vertical);
+        tablero.addNewPosition(new NonoPosicion(0, 2), nonoFicha_vertical);
+        tablero.addNewPosition(new NonoPosicion(1, 0), nonoFicha_rival_vertical);
+        tablero.addNewPosition(new NonoPosicion(2, 0), nonoFicha_vertical);
+        tablero.addNewPosition(new NonoPosicion(3, 0), nonoFicha_rival_horizontal);
+//        tablero.addNewPosition(new NonoPosicion(3, 1), nonoFicha_vertical);
+//        tablero.addNewPosition(new NonoPosicion(2, 0), nonoFicha_rival_horizontal);
+//        tablero.addNewPosition(new NonoPosicion(0, 1), nonoFicha_vertical);
+        tablero.addNewPosition(new NonoPosicion(3, 0), nonoFicha_vertical);
+        tablero.addNewPosition(new NonoPosicion(4, 0), nonoFicha_horizontal);
+        tablero.addNewPosition(new NonoPosicion(4, 1), nonoFicha_vertical);
+        tablero.addNewPosition(new NonoPosicion(2, 1), nonoFicha_vertical);
 
         //TEST
         int depth = 3;
@@ -64,23 +63,25 @@ public class Test {
         root.ficha = new JuegoEncerrado.NonoFicha();
         root.ficha.setColor(Vocabulario.Color.NEGRO);
         root.posicion = new NonoPosicion(0, 0);
-        root.tablero_test = (NonoTablero) NonoTablero.clone(g.tablero);
+        root.tablero_test = (NonoTablero) NonoTablero.clone(tablero);
         if (true) {
-            Pair<NonoPosicion, NonoFicha> p = Game_MiniMax.theBestIA(g.tablero);
-            System.out.println("P :" + p.getKey());
-            System.out.println("P :" + p.getValue());
-//            Pair<Integer, Node> p = Game_MiniMax.minimax(g, root, depth, true);
-//            int mm_value = p.getKey();
-//            Node mm_node = p.getValue();
+//            Pair<NonoPosicion, NonoFicha> p = Game_MiniMax.theBestIA(g.tablero);
+//            System.out.println("P :" + p.getKey());
+//            System.out.println("P :" + p.getValue());
+            Pair<Integer, Node> p = Game_MiniMax.minimax(root, depth, true);
+            int mm_value = p.getKey();
+            Node mm_node = p.getValue();
 
             // DATA
-//            System.out.println("");
-//            System.out.println("root" + root.toString());
-//            System.out.println("Node:    " + root.posicion + " - " + root.ficha + " ->   ");
-//            System.out.println("Minimax: " + mm_node.posicion + " - " + mm_node.ficha + " with (" + mm_value + ") points");
+            System.out.println("");
+            System.out.println("root" + root.toString());
+            System.out.println("Node:    " + root.posicion + " - " + root.ficha + " ->   ");
+            System.out.println("Minimax: " + mm_node.posicion + " - " + mm_node.ficha + " with (" + mm_value + ") points");
+//            int v = Game_MiniMax.analizeSection(tablero, new NonoPosicion(3, 1), nonoFicha_vertical);
+//            System.out.println("V" + v);
         }
 
-        g.tablero.show();
+        tablero.show();
 
 //        System.out.println("G1" + g.tablero.positions);
     }

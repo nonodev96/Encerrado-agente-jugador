@@ -20,6 +20,8 @@ import javafx.util.Pair;
  */
 public class Game_MiniMax {
 
+    private static final boolean DEBUG = false;
+
     public Game_MiniMax() {
     }
 
@@ -32,52 +34,59 @@ public class Game_MiniMax {
      * @param maximizingPlayer
      * @return
      */
-    public static Pair<Integer, Node> minimax(Graph graph, Node node, int depth, boolean maximizingPlayer) {
+    public static Pair<Integer, Node> minimax(Node node, int depth, boolean maximizingPlayer) {
 //        graph.tablero.show();
-        System.out.println("depth: " + depth);
-        if (depth == 0 || isTerminalNode(graph, node)) {
-            int val = heuristic(graph, node, maximizingPlayer);
-            System.out.print(String.format("%d %" + (depth + 1) + "s ", depth, " "));
-            System.out.print("Node: " + node);
-            System.out.println(" heuristic: " + val);
-            graph.tablero.show();
+        if (Game_MiniMax.DEBUG) {
+            System.out.println("depth: " + depth);
+        }
+        if (depth == 0 /*|| isTerminalNode(node)*/) {
+            int val = heuristic(node, maximizingPlayer);
+            if (Game_MiniMax.DEBUG) {
+//                System.out.print(String.format("%d %" + (depth + 1) + "s ", depth, " "));
+//                System.out.print("Node: " + node);
+//                System.out.println(" heuristic: " + val);
+            }
             return new Pair(val, node);
         }
         int value = 0;
         Node v_node = node;
         Pair<Integer, Node> p;
-        ArrayList<Node> childOfNode = childOfNode(graph, node, maximizingPlayer);
-
+        ArrayList<Node> childOfNode = childOfNode(node, maximizingPlayer);
         if (maximizingPlayer) {
             value = Integer.MIN_VALUE;
             for (Node child : childOfNode) {
-                p = Game_MiniMax.minimax(graph, child, depth - 1, false);
+                p = Game_MiniMax.minimax(child, depth - 1, false);
                 if (value < p.getKey()) {
                     value = Math.max(value, p.getKey());
                     v_node = p.getValue();
                 }
-                System.out.println("Value: " + value + " " + p.getKey() + " " + p.getValue());
+                if (Game_MiniMax.DEBUG) {
+                    System.out.println(String.format("MAX depth(%2d) %-69s%10s%16s", depth, p.getValue(), "-> old: " + value, "new: " + p.getKey()));
+                }
             }
             return new Pair(value, v_node);
         } else {
             value = Integer.MAX_VALUE;
             for (Node child : childOfNode) {
-                p = Game_MiniMax.minimax(graph, child, depth - 1, true);
+                p = Game_MiniMax.minimax(child, depth - 1, true);
                 if (value > p.getKey()) {
                     value = Math.min(value, p.getKey());
                     v_node = p.getValue();
                 }
-                System.out.println("Value: " + value + " " + p.getKey() + " " + p.getValue());
+                if (Game_MiniMax.DEBUG) {
+                    System.out.println(String.format("MIN depth(%2d) %-69s%10s%16s", depth, p.getValue(), "-> old: " + value, "new: " + p.getKey()));
+                }
             }
             return new Pair(value, v_node);
         }
     }
 
-    private static ArrayList<Node> childOfNode(Graph graph, Node node, boolean maximizingPlayer) {
+    private static ArrayList<Node> childOfNode(Node node, boolean maximizingPlayer) {
         ArrayList<Node> nodes = new ArrayList<>();
+        /* codigo antiguo, solo construia una parte del arbol
         int[] checkPositionsX = new int[]{+0, +1, -1, +0, +0};
         int[] checkPositionsY = new int[]{+0, +0, +0, -1, +1};
-        int checkPositionLenght = 3;
+        int checkPositionLenght = 5;
 
         for (int iter = 0; iter < checkPositionLenght; iter++) {
             int x = checkPositionsX[iter];
@@ -102,7 +111,35 @@ public class Game_MiniMax {
                 }
             }
         }
+         */
+        for (int x = 0; x < SIZE_TABLERO; x++) {
+            for (int y = 0; y < SIZE_TABLERO; y++) {
+                Node new_node_h = new Node();
+                new_node_h.ficha = new JuegoEncerrado.NonoFicha();
+                new_node_h.ficha.setColor(maximizingPlayer ? Vocabulario.Color.NEGRO : Vocabulario.Color.ROJO);
+                new_node_h.posicion = new NonoPosicion(x, y);
+                new_node_h.tablero_test = (NonoTablero) NonoTablero.clone(node.tablero_test);
 
+                if (node.tablero_test.isPositionValid(new_node_h.posicion)) {
+                    if (!new_node_h.tablero_test.checkIfExist(new_node_h.posicion, Vocabulario.Orientacion.HORIZONTAL)) {
+                        new_node_h.ficha.setOrientacion(Vocabulario.Orientacion.HORIZONTAL);
+                        nodes.add(new_node_h);
+                    }
+                }
+                Node new_node_v = new Node();
+                new_node_v.ficha = new JuegoEncerrado.NonoFicha();
+                new_node_v.ficha.setColor(maximizingPlayer ? Vocabulario.Color.NEGRO : Vocabulario.Color.ROJO);
+                new_node_v.posicion = new NonoPosicion(x, y);
+                new_node_v.tablero_test = (NonoTablero) NonoTablero.clone(node.tablero_test);
+
+                if (node.tablero_test.isPositionValid(new_node_v.posicion)) {
+                    if (!new_node_v.tablero_test.checkIfExist(new_node_v.posicion, Vocabulario.Orientacion.VERTICAL)) {
+                        new_node_v.ficha.setOrientacion(Vocabulario.Orientacion.VERTICAL);
+                        nodes.add(new_node_v);
+                    }
+                }
+            }
+        }
         return nodes;
     }
 
@@ -111,51 +148,21 @@ public class Game_MiniMax {
      * @param node
      * @return
      */
-    public static int heuristic(Graph graph, Node node, boolean maximizingPlayer) {
+    public static int heuristic(Node node, boolean maximizingPlayer) {
         NonoTablero t = (NonoTablero) NonoTablero.clone(node.tablero_test);
         NonoPosicion pos = node.posicion;
         NonoFicha ficha = node.ficha;
-//|| t.checkIfExist(pos, ficha.orientacion)
+
         if (!t.isPositionValid(pos)) {
             return -10;
         }
-        // Esto creo que deberia ir en childOfNode
-        // TODO
-        t.addNewPosition(pos, ficha);
+        int value = analizeSection(t, pos, ficha);
 
-        int value = 0;
-        NonoPosicion test;
-
-        if (ficha.orientacion == Vocabulario.Orientacion.HORIZONTAL) {
-            test = new NonoPosicion(pos.getCoorX(), pos.getCoorY());
-            if (t.isPositionValid(test) && t.checkAllWalls(test)) {
-//                value = maximizingPlayer ? value++ : value--;
-                value++;
-            }
-
-            test = new NonoPosicion(pos.getCoorX() - 1, pos.getCoorY());
-            if (t.isPositionValid(test) && t.checkAllWalls(test)) {
-//                value = maximizingPlayer ? value++ : value--;
-                value++;
-            }
-        } else if (ficha.orientacion == Vocabulario.Orientacion.VERTICAL) {
-            test = new NonoPosicion(pos.getCoorX(), pos.getCoorY());
-            if (t.isPositionValid(test) && t.checkAllWalls(test)) {
-//                value = maximizingPlayer ? value++ : value--;
-                value++;
-            }
-
-            test = new NonoPosicion(pos.getCoorX(), pos.getCoorY() - 1);
-            if (t.isPositionValid(test) && t.checkAllWalls(test)) {
-//                value = maximizingPlayer ? value++ : value--;
-                value++;
-            }
-        }
         return value;
     }
 
-    public static boolean isTerminalNode(Graph graph, Node node) {
-        return !graph.tablero.isPositionValid(node.posicion);
+    public static boolean isTerminalNode(Node node) {
+        return !node.tablero_test.isPositionValid(node.posicion);
         //&& !graph.tablero.checkIfExist(node.posicion, node.ficha.orientacion);
     }
 
@@ -230,7 +237,53 @@ public class Game_MiniMax {
 
             }
         }
-        System.out.println("V: " + bestValue);
         return new Pair<>(posicionToReturn, fichaToReturn);
+    }
+
+    public static int analizeSection(NonoTablero object, NonoPosicion pos, NonoFicha ficha) {
+        int value = 0;
+        NonoTablero copy = (NonoTablero) NonoTablero.clone(object);
+        int x = pos.getCoorX();
+        int y = pos.getCoorY();
+        NonoPosicion test;
+        if (ficha.orientacion == Vocabulario.Orientacion.VERTICAL) {
+            if (copy.isPositionValid(pos) && !copy.checkIfExist(pos, Vocabulario.Orientacion.VERTICAL)) {
+                NonoFicha f = new NonoFicha();
+                f.setOrientacion(Vocabulario.Orientacion.VERTICAL);
+                copy.addNewPosition(pos, f);
+                // caja
+                test = new NonoPosicion(x, y);
+                if (copy.checkAllWalls(test)) {
+                    value++;
+                }
+
+                // Izquierda
+                test = new NonoPosicion(x, y - 1);
+                if (copy.isPositionValid(test) && copy.checkAllWalls(test)) {
+                    value++;
+                }
+            }
+        } else if (ficha.orientacion == Vocabulario.Orientacion.HORIZONTAL) {
+            // Caja de arriba y abajo
+            if (copy.isPositionValid(pos) && !copy.checkIfExist(pos, Vocabulario.Orientacion.HORIZONTAL)) {
+                NonoFicha f = new NonoFicha();
+                f.setOrientacion(Vocabulario.Orientacion.HORIZONTAL);
+                copy.addNewPosition(pos, f);
+
+                test = new NonoPosicion(x, y);
+                // caja
+                if (copy.checkAllWalls(test)) {
+                    value++;
+                }
+
+                // arriba
+                test = new NonoPosicion(x - 1, y);
+                if (copy.isPositionValid(test) && copy.checkAllWalls(test)) {
+                    value++;
+                }
+            }
+        }
+
+        return value;
     }
 }

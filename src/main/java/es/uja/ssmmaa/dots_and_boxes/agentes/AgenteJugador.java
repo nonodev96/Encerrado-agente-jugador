@@ -31,6 +31,7 @@ import com.google.gson.Gson;
 import static es.uja.ssmmaa.dots_and_boxes.project.Constantes.MY_GAME;
 import es.uja.ssmmaa.dots_and_boxes.tareas.TaskContractNetResponder_Jugador;
 import es.uja.ssmmaa.dots_and_boxes.project.JuegoEncerrado;
+import es.uja.ssmmaa.dots_and_boxes.project.V_Game;
 import es.uja.ssmmaa.ontologia.encerrado.Encerrado;
 import es.uja.ssmmaa.ontologia.juegoTablero.Jugador;
 import es.uja.ssmmaa.ontologia.juegoTablero.PedirMovimiento;
@@ -112,7 +113,7 @@ public class AgenteJugador extends Agent implements SubscripcionDF, TasksJugador
     public ArrayList<Juego> list_of_games;
     public LinkedList<String> mensajes;
 
-    private Map<String, JuegoEncerrado> juegosMap;
+    private Map<String, V_Game> juegosMap;
 
     public AgenteJugador() {
         this.gson = new Gson();
@@ -415,7 +416,7 @@ public class AgenteJugador extends Agent implements SubscripcionDF, TasksJugador
         int maxRondas = partida.getMaxRondas();
         int ronda = partida.getRonda();
 
-        JuegoEncerrado nonoJuegoJugador = this.getJuego(idJuego);
+        V_Game nonoJuegoJugador = this.getJuego(idJuego);
 
         MovimientoEntregadoLinea movimientoEntregadoLinea = new MovimientoEntregadoLinea();
         movimientoEntregadoLinea.setPartida(partida);
@@ -437,12 +438,12 @@ public class AgenteJugador extends Agent implements SubscripcionDF, TasksJugador
         }
     }
 
-    private JuegoEncerrado getJuego(String idJuego) {
+    private V_Game getJuego(String idJuego) {
         return this.juegosMap.get(idJuego);
     }
 
-    private void setJuego(String idJuego, JuegoEncerrado juego_Jugador) {
-        this.juegosMap.put(idJuego, juego_Jugador);
+    private void setJuego(String idJuego, V_Game game) {
+        this.juegosMap.put(idJuego, game);
     }
 
     public void CrearJuego(Juego juegoPropuesto_Juego, Encerrado juegoPropuesto_Encerrado, Vocabulario.Modo juegoPropuesto_Modo) {
@@ -453,9 +454,9 @@ public class AgenteJugador extends Agent implements SubscripcionDF, TasksJugador
         int filas = juegoPropuesto_Encerrado.getFilas();
         int columnas = juegoPropuesto_Encerrado.getColumnas();
 
-        JuegoEncerrado j = this.getJuego(idJuego);
-        if (j == null) {
-            j = new JuegoEncerrado();
+        V_Game g = this.getJuego(idJuego);
+        if (g == null) {
+            g = new V_Game();
         }
        
 
