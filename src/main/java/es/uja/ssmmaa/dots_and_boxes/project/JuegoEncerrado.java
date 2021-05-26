@@ -17,7 +17,6 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import javafx.util.Pair;
 
 /**
  *
@@ -35,87 +34,212 @@ public class JuegoEncerrado {
     public static class NonoTablero {
 
         public HashMap<NonoPosicion, NonoFicha[]> positions;
+        public int SIZE_X;
+        public int SIZE_Y;
 
         public NonoTablero() {
             this.positions = new HashMap<>();
+            this.SIZE_X = SIZE_TABLERO;
+            this.SIZE_Y = SIZE_TABLERO;
         }
 
-        public boolean isPositionValid(NonoPosicion pos) {
+        public NonoTablero(int size_x, int size_y) {
+            this.positions = new HashMap<>();
+            this.SIZE_X = size_x;
+            this.SIZE_Y = size_y;
+        }
+
+        /**
+         * @param pos
+         * @param ori
+         * @return
+         */
+        public boolean isPositionValid(NonoPosicion pos, Orientacion ori) {
             // Comprueba si es la primera posicion
+            if (this.positions.isEmpty()) {
+                return true;
+            }
             if (pos.getCoorX() < 0 || pos.getCoorY() < 0) {
                 return false;
             }
-            if (pos.getCoorX() == 0 && pos.getCoorY() == 0) {
+            if (pos.getCoorX() == SIZE_X - 1) {
+                if (ori == Orientacion.VERTICAL) {
+                    return false;
+                }
+            }
+            // Comprueba la ultima fila
+            if (pos.getCoorY() == SIZE_Y - 1) {
+                if (ori == Orientacion.HORIZONTAL) {
+                    return false;
+                }
+            }
+
+            /** <
+             * 1. TOP
+             *          1=|
+             *        3 - * - 2
+             *            ?
+             *            *
+             * >
+             */
+            int top_c = 0;
+            int[] checkPositionsX = new int[]{-1, +0, +0};
+            int[] checkPositionsY = new int[]{+0, +0, -1};
+            int checkPositionLenght = 3;
+            for (int iter = 0; iter < checkPositionLenght; iter++) {
+                int x = checkPositionsX[iter];
+                int y = checkPositionsY[iter];
+                if (iter == 0) {
+                    if (this.checkIfExist(new NonoPosicion(pos.getCoorX() + x, pos.getCoorY() + y), Orientacion.VERTICAL)) {
+                        top_c++;
+                    }
+                }
+                if (iter == 1 || iter == 2) {
+                    if (this.checkIfExist(new NonoPosicion(pos.getCoorX() + x, pos.getCoorY() + y), Orientacion.HORIZONTAL)) {
+                        top_c++;
+                    }
+                }
+            }
+            if (top_c > 0) {
                 return true;
             }
-            // Comprueba la primera fila
-            if (pos.getCoorX() == 0) {
-                NonoPosicion test_h = new NonoPosicion(pos.getCoorX(), pos.getCoorY() - 1);
-                NonoFicha[] o = this.positions.getOrDefault(test_h, new NonoFicha[2]);
-                if (o[NonoOrientacion.HORIZONTAL.ordinal()] != null) {
-                    if (o[NonoOrientacion.HORIZONTAL.ordinal()].getOrientacion() == Orientacion.HORIZONTAL) {
-                        return true;
-                    }
-                }
-                // Que haya alguno a abajo
-                NonoPosicion test_d = new NonoPosicion(pos.getCoorX() + 1, pos.getCoorY());
-                NonoFicha[] o_d = this.positions.getOrDefault(test_d, new NonoFicha[2]);
-                if (o_d[NonoOrientacion.VERTICAL.ordinal()] != null) {
-                    if (o_d[NonoOrientacion.VERTICAL.ordinal()].getOrientacion() == Orientacion.VERTICAL) {
-                        return true;
-                    }
-                }
-            }
-            // Comprueba la primera columna
-            if (pos.getCoorY() == 0) {
-                // Que haya alguno a la derecha
-                NonoPosicion test_r = new NonoPosicion(pos.getCoorX(), pos.getCoorY() + 1);
-                NonoFicha[] o_r = this.positions.getOrDefault(test_r, new NonoFicha[2]);
-                if (o_r[NonoOrientacion.HORIZONTAL.ordinal()] != null) {
-                    if (o_r[NonoOrientacion.HORIZONTAL.ordinal()].getOrientacion() == Orientacion.HORIZONTAL) {
-                        return true;
-                    }
-                }
-                NonoPosicion test_v = new NonoPosicion(pos.getCoorX() - 1, pos.getCoorY());
-                NonoFicha[] o = this.positions.getOrDefault(test_v, new NonoFicha[2]);
-                if (o[NonoOrientacion.VERTICAL.ordinal()] != null) {
-                    if (o[NonoOrientacion.VERTICAL.ordinal()].getOrientacion() == Orientacion.VERTICAL) {
-                        return true;
-                    }
-                }
-            }
-            // Comprueba las filas y columnas finales.
-            if (pos.getCoorX() >= 0 && pos.getCoorX() < SIZE_TABLERO && pos.getCoorY() >= 0 && pos.getCoorY() < SIZE_TABLERO) {
-                // Vamos iterando por las posiciones de arriba, abajo, izquierda derecha 
-                // Si en alguno hay una ficha devolvemos true
-                int[] checkPositionsX = new int[]{+1, -1, +0, +0};
-                int[] checkPositionsY = new int[]{+0, +0, -1, +1};
-                int checkPositionLenght = 4;
-                for (int iter = 0; iter < checkPositionLenght; iter++) {
-                    int x = checkPositionsX[iter];
-                    int y = checkPositionsY[iter];
-                    NonoPosicion test_tdlr = new NonoPosicion(pos.getCoorX() + x, pos.getCoorY() + y);
-                    NonoFicha[] o_tdlr = this.positions.getOrDefault(test_tdlr, new NonoFicha[2]);
 
-                    if (o_tdlr[NonoOrientacion.HORIZONTAL.ordinal()] != null) {
-                        if (o_tdlr[NonoOrientacion.HORIZONTAL.ordinal()].getOrientacion() == Orientacion.HORIZONTAL && (iter == 2 || iter == 3)) {
-                            return true;
-                        }
+            /** <
+             * 2. RIGHT
+             *          1=|
+             *       * ?? * - 2
+             *          3=|
+             * >
+             */
+            int[] checkPositionsX_2 = new int[]{-1, +0};
+            int[] checkPositionsY_2 = new int[]{+1, +1};
+            int right_c = 0;
+            int checkPositionLenght_2 = 2;
+            for (int iter = 0; iter < checkPositionLenght_2; iter++) {
+                int x = checkPositionsX_2[iter];
+                int y = checkPositionsY_2[iter];
+                if (iter == 0 || iter == 1) {
+                    if (this.checkIfExist(new NonoPosicion(pos.getCoorX() + x, pos.getCoorY() + y), Orientacion.VERTICAL)) {
+                        right_c++;
                     }
-                    if (o_tdlr[NonoOrientacion.VERTICAL.ordinal()] != null) {
-                        if (o_tdlr[NonoOrientacion.VERTICAL.ordinal()].getOrientacion() == Orientacion.VERTICAL && (iter == 0 || iter == 1)) {
-                            return true;
-                        }
+                }
+                if (iter == 1) {
+                    if (this.checkIfExist(new NonoPosicion(pos.getCoorX() + x, pos.getCoorY() + y), Orientacion.HORIZONTAL)) {
+                        right_c++;
                     }
                 }
             }
+            if (right_c > 0) {
+                return true;
+            }
+
+            /** <
+             * 3. DOWN
+             *            *
+             *            ?
+             *        3 - * - 1
+             *          2=|
+             * >
+             */
+            int[] checkPositionsX_3 = new int[]{+1, +1};
+            int[] checkPositionsY_3 = new int[]{+0, -1};
+            int checkPositionLenght_3 = 2;
+            int down_c = 0;
+            for (int iter = 0; iter < checkPositionLenght_3; iter++) {
+                int x = checkPositionsX_3[iter];
+                int y = checkPositionsY_3[iter];
+                if (iter == 0) {
+                    if (this.checkIfExist(new NonoPosicion(pos.getCoorX() + x, pos.getCoorY() + y), Orientacion.VERTICAL)) {
+                        down_c++;
+                    }
+                }
+                if (iter == 0 || iter == 1) {
+                    if (this.checkIfExist(new NonoPosicion(pos.getCoorX() + x, pos.getCoorY() + y), Orientacion.HORIZONTAL)) {
+                        down_c++;
+                    }
+                }
+            }
+            if (down_c > 0) {
+                return true;
+            }
+
+            /** <
+             * 4. LEFT
+             *          1=|
+             *        3 - * ?? *
+             *          2=|
+             *
+             * >
+             */
+            int[] checkPositionsX_4 = new int[]{+1, +0, +0};
+            int[] checkPositionsY_4 = new int[]{-1, -1, -2};
+            int checkPositionLenght_4 = 3;
+            int left_c = 0;
+            for (int iter = 0; iter < checkPositionLenght_4; iter++) {
+                int x = checkPositionsX_4[iter];
+                int y = checkPositionsY_4[iter];
+                if (iter == 0 || iter == 1) {
+                    if (this.checkIfExist(new NonoPosicion(pos.getCoorX() + x, pos.getCoorY() + y), Orientacion.VERTICAL)) {
+                        left_c++;
+                    }
+                }
+                if (iter == 2) {
+                    if (this.checkIfExist(new NonoPosicion(pos.getCoorX() + x, pos.getCoorY() + y), Orientacion.HORIZONTAL)) {
+                        left_c++;
+                    }
+                }
+            }
+            if (left_c > 0) {
+                return true;
+            }
+
+            /** <
+             * 0. Walls
+             *            1
+             *            |
+             *        3 - 2 - *
+             *            |
+             *            *
+             * >
+             */
+//            System.out.println("ss" + pos);
+//            int[] checkPositionsX_aux = new int[]{-1, +0, +0};
+//            int[] checkPositionsY_aux = new int[]{+0, +0, -1};
+//            int checkPositionLenght_aux = 3;
+//            int walls = 0;
+//            for (int iter = 0; iter < checkPositionLenght_aux; iter++) {
+//                int x = checkPositionsX_aux[iter];
+//                int y = checkPositionsY_aux[iter];
+//                if (iter == 0 || iter == 1) {
+//                    if (this.checkIfExist(new NonoPosicion(pos.getCoorX() + x, pos.getCoorY() + y), Orientacion.VERTICAL)) {
+//                        walls++;
+//                    }
+//                }
+//                if (iter == 1 || iter == 2) {
+//                    if (this.checkIfExist(new NonoPosicion(pos.getCoorX() + x, pos.getCoorY() + y), Orientacion.HORIZONTAL)) {
+//                        walls++;
+//                    }
+//                }
+//            }
+//            if (walls > 0) {
+//                return true;
+//            }
             return false;
         }
 
+        /** <
+         * addNewPosition
+         *
+         *          * -
+         *          |
+         * >
+         * @param pos
+         * @param ficha
+         */
         public void addNewPosition(NonoPosicion pos, NonoFicha ficha) {
-            if (!isPositionValid(pos)) {
+            if (!isPositionValid(pos, ficha.getOrientacion())) {
                 // Comentar y descomentar para hacer debug
-                throw new Error("Posicion no válida" + pos);
+                throw new Error("Posicion no válida" + pos + "" + ficha.getOrientacion());
             }
             if (checkIfExist(pos, ficha.getOrientacion())) {
                 throw new Error("Ficha ya existia, " + pos + "" + ficha.getOrientacion());
@@ -130,50 +254,6 @@ public class JuegoEncerrado {
                 o[NonoOrientacion.VERTICAL.ordinal()].setOrientacion(Orientacion.VERTICAL);
             }
             this.positions.put(pos, o);
-
-            // TODO
-            // Aqui faltaria comprobar si al colocar una ficha si suma un punto
-//            if (checkPoints(pos, ficha.getOrientacion())) {
-//            }
-        }
-
-        /** <
-         * Si la orientacion es horizontal compruebas el punto de arriba
-         * Si la orientacion es vertical compruebas el punto de la izquierda
-         *
-         * Comprobamos los limites por arriba y por debajo
-         * 11 - 12
-         * 21 - 22
-         * punto 11 seria el primero donde miramos la horizontal y vertical
-         * punto 21 miramos la horizontal
-         * punto 12 miramos la vertical
-         * Si todos se cumplen sumamos un punto
-         * >
-         */
-        public boolean checkPoints(NonoPosicion pos, Vocabulario.Orientacion ori) {
-            int[] checkPositionsX = new int[]{+0, +0, +1};
-            int[] checkPositionsY = new int[]{+0, -1, +0};
-            int checkPositionLenght = 3;
-            boolean allWalls = true;
-            for (int iter = 0; iter < checkPositionLenght; iter++) {
-                int x = checkPositionsX[iter];
-                int y = checkPositionsY[iter];
-                NonoPosicion test = new NonoPosicion(pos.getCoorX() + x, pos.getCoorY() + y);
-                NonoFicha[] o = this.positions.getOrDefault(test, new NonoFicha[2]);
-//                System.out.println("hello: " + new NonoPosicion(x, y).toString() + " + " + pos.toString() + " = " + test.toString());
-                if (o[NonoOrientacion.HORIZONTAL.ordinal()] != null) {
-                    if (o[NonoOrientacion.HORIZONTAL.ordinal()].getOrientacion() == null && (iter == 0 || iter == 2)) {
-                        allWalls = false;
-                    }
-                }
-                if (o[NonoOrientacion.VERTICAL.ordinal()] != null) {
-                    if (o[NonoOrientacion.VERTICAL.ordinal()].getOrientacion() == null && (iter == 0 || iter == 3)) {
-                        allWalls = false;
-                    }
-                }
-            }
-
-            return allWalls;
         }
 
         /** < 8 x 8
@@ -203,7 +283,7 @@ public class JuegoEncerrado {
         public void show() {
             System.out.println("====y0==y1==y2==y3==y4==y5==y6==y7==");
             System.out.println("|                                  |");
-            for (int x = 0; x < SIZE_TABLERO; x++) {
+            for (int x = 0; x < SIZE_X; x++) {
 
                 for (int parity = 0; parity < 2; parity++) {
                     if (parity == 0) {
@@ -211,7 +291,7 @@ public class JuegoEncerrado {
                     } else {
                         System.out.print("|  ");
                     }
-                    for (int y = 0; y < SIZE_TABLERO; y++) {
+                    for (int y = 0; y < SIZE_Y; y++) {
                         NonoPosicion test = new NonoPosicion(x, y);
                         NonoFicha[] o = this.positions.getOrDefault(test, new NonoFicha[2]);
 
@@ -243,10 +323,12 @@ public class JuegoEncerrado {
         public boolean checkIfExist(NonoPosicion pos, Orientacion ori) {
             NonoFicha[] pos_ori = this.positions.getOrDefault(pos, new NonoFicha[2]);
             if (pos_ori != null) {
-                if (pos_ori[NonoOrientacion.HORIZONTAL.ordinal()] != null && pos_ori[NonoOrientacion.HORIZONTAL.ordinal()].getOrientacion() == ori) {
+                if (pos_ori[NonoOrientacion.HORIZONTAL.ordinal()] != null
+                        && pos_ori[NonoOrientacion.HORIZONTAL.ordinal()].getOrientacion() == ori) {
                     return true;
                 }
-                if (pos_ori[NonoOrientacion.VERTICAL.ordinal()] != null && pos_ori[NonoOrientacion.VERTICAL.ordinal()].getOrientacion() == ori) {
+                if (pos_ori[NonoOrientacion.VERTICAL.ordinal()] != null
+                        && pos_ori[NonoOrientacion.VERTICAL.ordinal()].getOrientacion() == ori) {
                     return true;
                 }
             }
@@ -269,7 +351,6 @@ public class JuegoEncerrado {
                         allWalls = false;
                     }
                 }
-
                 if (iter == 0 || iter == 2) {
                     if (!this.checkIfExist(test_wall, Vocabulario.Orientacion.VERTICAL)) {
                         allWalls = false;
@@ -281,7 +362,6 @@ public class JuegoEncerrado {
 
         public static Object clone(NonoTablero object) {
             NonoTablero copy = new NonoTablero();
-
             for (Map.Entry<NonoPosicion, NonoFicha[]> entry : object.positions.entrySet()) {
                 NonoPosicion key = entry.getKey();
                 NonoFicha[] value = entry.getValue();

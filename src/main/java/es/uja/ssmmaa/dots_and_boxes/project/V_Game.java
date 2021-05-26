@@ -12,6 +12,13 @@ import es.uja.ssmmaa.ontologia.encerrado.Ficha;
  * @author nono_
  */
 public class V_Game {
-      public Ficha ficha;
-  
+
+    public Ficha ficha;
+    public JuegoEncerrado juego;
+
+    public V_Game() {
+        this.juego = new JuegoEncerrado();
+        this.juego.nonoTablero = new JuegoEncerrado.NonoTablero(8, 8);
+    }
+
 }

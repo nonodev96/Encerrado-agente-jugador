@@ -5,13 +5,13 @@
  */
 package es.uja.ssmmaa.dots_and_boxes.project;
 
-import static es.uja.ssmmaa.dots_and_boxes.project.Constantes.SIZE_TABLERO;
 import es.uja.ssmmaa.dots_and_boxes.project.JuegoEncerrado.NonoFicha;
 import es.uja.ssmmaa.dots_and_boxes.project.JuegoEncerrado.NonoPosicion;
 import es.uja.ssmmaa.dots_and_boxes.project.JuegoEncerrado.NonoTablero;
 import es.uja.ssmmaa.ontologia.Vocabulario;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import javafx.util.Pair;
 
 /**
@@ -34,10 +34,8 @@ public class Game_MiniMax {
      * @return
      */
     public static Pair<Integer, Node> minimax(Node node, int depth, boolean maximizingPlayer) {
-//        graph.tablero.show();
-
-        if (depth == 0 /*|| isTerminalNode(node)*/) {
-            int val = heuristic(node, maximizingPlayer);
+        if (depth == 0 || isTerminalNode(node)) {
+            int val = heuristic(node);
             if (Game_MiniMax.DEBUG) {
                 System.out.print(String.format("%d %" + (depth + 1) + "s ", depth, " "));
                 System.out.print("Node: " + node);
@@ -48,9 +46,10 @@ public class Game_MiniMax {
         int value = 0;
         Node v_node = node;
         Pair<Integer, Node> p;
-        ArrayList<Node> childOfNode = childOfNode(node, maximizingPlayer);
+        ArrayList<Node> childOfNode = childOfNode(node);
         if (Game_MiniMax.DEBUG) {
             System.out.println("depth: " + depth + " childs: " + childOfNode.size());
+            System.out.println(Arrays.toString(childOfNode.toArray()));
         }
         if (maximizingPlayer) {
             value = Integer.MIN_VALUE;
@@ -93,67 +92,73 @@ public class Game_MiniMax {
      * @param maximizingPlayer
      * @return
      */
-    private static ArrayList<Node> childOfNode(Node node, boolean maximizingPlayer) {
+    private static ArrayList<Node> childOfNode(Node node) {
         ArrayList<Node> nodes = new ArrayList<>();
-        for (int x = 0; x < SIZE_TABLERO; x++) {
-            for (int y = 0; y < SIZE_TABLERO; y++) {
+        for (int x = 0; x < node.tablero_test.SIZE_X; x++) {
+            for (int y = 0; y < node.tablero_test.SIZE_Y; y++) {
 
                 // 1. Caja arriba derecha
                 Node new_node_1 = new Node();
                 new_node_1.ficha = new JuegoEncerrado.NonoFicha();
                 new_node_1.ficha.setColor(node.ficha.getColor());
+                new_node_1.ficha.setOrientacion(Vocabulario.Orientacion.VERTICAL);
                 new_node_1.posicion = new NonoPosicion(x - 1, y);
-                if (node.tablero_test.isPositionValid(new_node_1.posicion)) {
-                    new_node_1.tablero_test = (NonoTablero) NonoTablero.clone(node.tablero_test);
-                    if (!new_node_1.tablero_test.checkIfExist(new_node_1.posicion, Vocabulario.Orientacion.VERTICAL)) {
-                        new_node_1.ficha.setOrientacion(Vocabulario.Orientacion.VERTICAL);
-//                        new_node_1.tablero_test.addNewPosition(new_node_1.posicion, new_node_1.ficha);
-                        nodes.add(new_node_1);
+                if (!nodes.contains(new_node_1)) {
+                    if (node.tablero_test.isPositionValid(new_node_1.posicion, new_node_1.ficha.getOrientacion())) {
+                        new_node_1.tablero_test = (NonoTablero) NonoTablero.clone(node.tablero_test);
+                        if (!new_node_1.tablero_test.checkIfExist(new_node_1.posicion, new_node_1.ficha.getOrientacion())) {
+                            new_node_1.tablero_test.addNewPosition(new_node_1.posicion, new_node_1.ficha);
+                            nodes.add(new_node_1);
+                        }
                     }
                 }
-
                 // 2. Caja abajo derecha
                 Node new_node_2 = new Node();
                 new_node_2.ficha = new JuegoEncerrado.NonoFicha();
-                new_node_1.ficha.setColor(node.ficha.getColor());
+                new_node_2.ficha.setColor(node.ficha.getColor());
+                new_node_2.ficha.setOrientacion(Vocabulario.Orientacion.HORIZONTAL);
                 new_node_2.posicion = new NonoPosicion(x, y);
-                if (node.tablero_test.isPositionValid(new_node_2.posicion)) {
-                    new_node_2.tablero_test = (NonoTablero) NonoTablero.clone(node.tablero_test);
-                    if (!new_node_2.tablero_test.checkIfExist(new_node_2.posicion, Vocabulario.Orientacion.HORIZONTAL)) {
-                        new_node_2.ficha.setOrientacion(Vocabulario.Orientacion.HORIZONTAL);
-//                        new_node_2.tablero_test.addNewPosition(new_node_2.posicion, new_node_2.ficha);
-                        nodes.add(new_node_2);
+                if (!nodes.contains(new_node_2)) {
+                    if (node.tablero_test.isPositionValid(new_node_2.posicion, new_node_2.ficha.getOrientacion())) {
+                        new_node_2.tablero_test = (NonoTablero) NonoTablero.clone(node.tablero_test);
+                        if (!new_node_2.tablero_test.checkIfExist(new_node_2.posicion, new_node_2.ficha.getOrientacion())) {
+                            new_node_2.tablero_test.addNewPosition(new_node_2.posicion, new_node_2.ficha);
+                            nodes.add(new_node_2);
+                        }
                     }
                 }
 
                 // 3. Caja abajo izquierda
                 Node new_node_3 = new Node();
                 new_node_3.ficha = new JuegoEncerrado.NonoFicha();
-                new_node_1.ficha.setColor(node.ficha.getColor());
+                new_node_3.ficha.setColor(node.ficha.getColor());
+                new_node_3.ficha.setOrientacion(Vocabulario.Orientacion.VERTICAL);
                 new_node_3.posicion = new NonoPosicion(x, y);
-                if (node.tablero_test.isPositionValid(new_node_3.posicion)) {
-                    new_node_3.tablero_test = (NonoTablero) NonoTablero.clone(node.tablero_test);
-                    if (!new_node_3.tablero_test.checkIfExist(new_node_3.posicion, Vocabulario.Orientacion.VERTICAL)) {
-                        new_node_3.ficha.setOrientacion(Vocabulario.Orientacion.VERTICAL);
-//                        new_node_3.tablero_test.addNewPosition(new_node_3.posicion, new_node_3.ficha);
-                        nodes.add(new_node_3);
+                if (!nodes.contains(new_node_3)) {
+                    if (node.tablero_test.isPositionValid(new_node_3.posicion, new_node_3.ficha.getOrientacion())) {
+                        new_node_3.tablero_test = (NonoTablero) NonoTablero.clone(node.tablero_test);
+                        if (!new_node_3.tablero_test.checkIfExist(new_node_3.posicion, new_node_3.ficha.getOrientacion())) {
+                            new_node_3.tablero_test.addNewPosition(new_node_3.posicion, new_node_3.ficha);
+                            nodes.add(new_node_3);
+                        }
                     }
                 }
-
                 // 4. Caja arriba izquierda
                 Node new_node_4 = new Node();
                 new_node_4.ficha = new JuegoEncerrado.NonoFicha();
-                new_node_1.ficha.setColor(node.ficha.getColor());
+                new_node_4.ficha.setColor(node.ficha.getColor());
+                new_node_4.ficha.setOrientacion(Vocabulario.Orientacion.HORIZONTAL);
                 new_node_4.posicion = new NonoPosicion(x, y - 1);
-                if (node.tablero_test.isPositionValid(new_node_4.posicion)) {
-                    new_node_4.tablero_test = (NonoTablero) NonoTablero.clone(node.tablero_test);
-                    if (!new_node_4.tablero_test.checkIfExist(new_node_4.posicion, Vocabulario.Orientacion.HORIZONTAL)) {
-                        new_node_4.ficha.setOrientacion(Vocabulario.Orientacion.HORIZONTAL);
-//                        new_node_4.tablero_test.addNewPosition(new_node_4.posicion, new_node_4.ficha);
-                        nodes.add(new_node_4);
+                if (!nodes.contains(new_node_4)) {
+                    if (node.tablero_test.isPositionValid(new_node_4.posicion, new_node_4.ficha.getOrientacion())) {
+                        new_node_4.tablero_test = (NonoTablero) NonoTablero.clone(node.tablero_test);
+                        if (!new_node_4.tablero_test.checkIfExist(new_node_4.posicion, new_node_4.ficha.getOrientacion())) {
+                            new_node_4.tablero_test.addNewPosition(new_node_4.posicion, new_node_4.ficha);
+                            nodes.add(new_node_4);
+                        }
                     }
-                }
 
+                }
             }
         }
         return nodes;
@@ -164,12 +169,12 @@ public class Game_MiniMax {
      * @param node
      * @return
      */
-    public static int heuristic(Node node, boolean maximizingPlayer) {
+    public static int heuristic(Node node) {
         NonoTablero t = (NonoTablero) NonoTablero.clone(node.tablero_test);
         NonoPosicion pos = node.posicion;
         NonoFicha ficha = node.ficha;
 
-        if (!t.isPositionValid(pos)) {
+        if (!t.isPositionValid(pos, ficha.getOrientacion())) {
             throw new Error("Posición no válida en heuristic");
         }
         int value = analizeSection(t, pos, ficha);
@@ -178,7 +183,8 @@ public class Game_MiniMax {
     }
 
     public static boolean isTerminalNode(Node node) {
-        return !node.tablero_test.isPositionValid(node.posicion) && !node.tablero_test.checkIfExist(node.posicion, node.ficha.orientacion);
+        return !node.tablero_test.isPositionValid(node.posicion, node.ficha.getOrientacion())
+                && !node.tablero_test.checkIfExist(node.posicion, node.ficha.getOrientacion());
     }
 
     /** <
@@ -200,8 +206,8 @@ public class Game_MiniMax {
         NonoPosicion test;
 
         if (ficha.orientacion == Vocabulario.Orientacion.VERTICAL) {
-            if (copy.isPositionValid(pos) && !copy.checkIfExist(pos, Vocabulario.Orientacion.VERTICAL)) {
-                copy.addNewPosition(pos, ficha);
+            if (copy.isPositionValid(pos, ficha.getOrientacion())/* && !copy.checkIfExist(pos, Vocabulario.Orientacion.VERTICAL)*/) {
+//                copy.addNewPosition(pos, ficha);
                 // caja
                 test = new NonoPosicion(x, y);
                 if (copy.checkAllWalls(test)) {
@@ -210,14 +216,14 @@ public class Game_MiniMax {
 
                 // Izquierda
                 test = new NonoPosicion(x, y - 1);
-                if (copy.isPositionValid(test) && copy.checkAllWalls(test)) {
+                if (copy.isPositionValid(test, ficha.getOrientacion()) && copy.checkAllWalls(test)) {
                     value++;
                 }
             }
         } else if (ficha.orientacion == Vocabulario.Orientacion.HORIZONTAL) {
             // Caja de arriba y abajo
-            if (copy.isPositionValid(pos) && !copy.checkIfExist(pos, Vocabulario.Orientacion.HORIZONTAL)) {
-                copy.addNewPosition(pos, ficha);
+            if (copy.isPositionValid(pos, ficha.getOrientacion()) /*&& !copy.checkIfExist(pos, Vocabulario.Orientacion.HORIZONTAL)*/) {
+//                copy.addNewPosition(pos, ficha);
 
                 test = new NonoPosicion(x, y);
                 // caja
@@ -227,7 +233,7 @@ public class Game_MiniMax {
 
                 // arriba
                 test = new NonoPosicion(x - 1, y);
-                if (copy.isPositionValid(test) && copy.checkAllWalls(test)) {
+                if (copy.isPositionValid(test, ficha.getOrientacion()) && copy.checkAllWalls(test)) {
                     value++;
                 }
             }
@@ -252,15 +258,15 @@ public class Game_MiniMax {
         NonoFicha fichaToReturn = new NonoFicha();
         NonoFicha ficha = new NonoFicha();
         NonoTablero copy;
-        for (int x = 0; x < SIZE_TABLERO; x++) {
-            for (int y = 0; y < SIZE_TABLERO; y++) {
+        for (int x = 0; x < object.SIZE_X; x++) {
+            for (int y = 0; y < object.SIZE_Y; y++) {
                 int value = 0;
                 pos.setCoorX(x);
                 pos.setCoorY(y);
                 copy = (NonoTablero) NonoTablero.clone(object);
 
                 // Caja de la derecha y la izquierda
-                if (copy.isPositionValid(pos) && !copy.checkIfExist(pos, Vocabulario.Orientacion.VERTICAL)) {
+                if (copy.isPositionValid(pos, Vocabulario.Orientacion.VERTICAL) && !copy.checkIfExist(pos, Vocabulario.Orientacion.VERTICAL)) {
                     NonoFicha f = new NonoFicha();
                     f.setOrientacion(Vocabulario.Orientacion.VERTICAL);
                     copy.addNewPosition(pos, f);
@@ -275,7 +281,7 @@ public class Game_MiniMax {
 
                     // Izquierda
                     test = new NonoPosicion(x, y - 1);
-                    if (copy.isPositionValid(test) && copy.checkAllWalls(test)) {
+                    if (copy.isPositionValid(test, Vocabulario.Orientacion.VERTICAL) && copy.checkAllWalls(test)) {
                         value++;
                         posicion = new NonoPosicion(pos.getCoorX(), pos.getCoorY());
                         ficha = (NonoFicha) f.clone();
@@ -283,7 +289,7 @@ public class Game_MiniMax {
                 }
 
                 // Caja de arriba y abajo
-                if (copy.isPositionValid(pos) && !copy.checkIfExist(pos, Vocabulario.Orientacion.HORIZONTAL)) {
+                if (copy.isPositionValid(pos, Vocabulario.Orientacion.HORIZONTAL) && !copy.checkIfExist(pos, Vocabulario.Orientacion.HORIZONTAL)) {
                     NonoFicha f = new NonoFicha();
                     f.setOrientacion(Vocabulario.Orientacion.HORIZONTAL);
                     copy.addNewPosition(pos, f);
@@ -298,7 +304,7 @@ public class Game_MiniMax {
 
                     // arriba
                     test = new NonoPosicion(x - 1, y);
-                    if (copy.isPositionValid(test) && copy.checkAllWalls(test)) {
+                    if (copy.isPositionValid(test, Vocabulario.Orientacion.HORIZONTAL) && copy.checkAllWalls(test)) {
                         value++;
                         posicion = new NonoPosicion(pos.getCoorX(), pos.getCoorY());
                         ficha = (NonoFicha) f.clone();
