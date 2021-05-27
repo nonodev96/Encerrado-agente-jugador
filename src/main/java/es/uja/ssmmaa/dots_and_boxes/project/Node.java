@@ -6,7 +6,11 @@
 package es.uja.ssmmaa.dots_and_boxes.project;
 
 import es.uja.ssmmaa.dots_and_boxes.project.JuegoEncerrado.NonoTablero;
+import es.uja.ssmmaa.dots_and_boxes.util.Tuple;
+import java.util.Comparator;
 import java.util.Objects;
+import java.util.PriorityQueue;
+import javax.lang.model.SourceVersion;
 
 /**
  *
@@ -17,9 +21,12 @@ public class Node {
     JuegoEncerrado.NonoTablero tablero_test;
     JuegoEncerrado.NonoPosicion posicion;
     JuegoEncerrado.NonoFicha ficha;
+    int depth;
+    Tuple next;
 
     public Node() {
 //        this.tablero_test = new JuegoEncerrado.NonoTablero();
+        //this.queue = new PriorityQueue<>(new ComparatorImpl());
     }
 
     @Override
@@ -52,6 +59,21 @@ public class Node {
 
     @Override
     public String toString() {
-        return posicion.toString() + " " + ficha.toString();
+        return String.format("%-70s %-2d", posicion.toString() + " " + ficha.toString() + " ", depth);
+    }
+
+    static class ComparatorImpl implements Comparator<Node> {
+
+        public ComparatorImpl() {
+        }
+
+        @Override
+        public int compare(Node node1, Node node2) {
+            if (node2.depth > node1.depth) {
+                return -1;
+            } else {
+                return +1;
+            }
+        }
     }
 }

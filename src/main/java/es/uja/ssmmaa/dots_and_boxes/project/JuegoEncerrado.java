@@ -8,15 +8,18 @@ package es.uja.ssmmaa.dots_and_boxes.project;
 import static es.uja.ssmmaa.dots_and_boxes.project.Constantes.SIZE_TABLERO;
 import es.uja.ssmmaa.dots_and_boxes.project.Constantes.NonoOrientacion;
 import es.uja.ssmmaa.dots_and_boxes.project.JuegoEncerrado.NonoPosicion;
+import es.uja.ssmmaa.dots_and_boxes.util.Tuple;
 import es.uja.ssmmaa.ontologia.Vocabulario;
 import es.uja.ssmmaa.ontologia.Vocabulario.Orientacion;
 import es.uja.ssmmaa.ontologia.encerrado.Ficha;
 import es.uja.ssmmaa.ontologia.juegoTablero.Jugador;
 import es.uja.ssmmaa.ontologia.juegoTablero.Posicion;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javafx.util.Pair;
 
 /**
  *
@@ -56,9 +59,6 @@ public class JuegoEncerrado {
          */
         public boolean isPositionValid(NonoPosicion pos, Orientacion ori) {
             // Comprueba si es la primera posicion
-            if (this.positions.isEmpty()) {
-                return true;
-            }
             if (pos.getCoorX() < 0 || pos.getCoorY() < 0) {
                 return false;
             }
@@ -73,157 +73,175 @@ public class JuegoEncerrado {
                     return false;
                 }
             }
-
+            if (this.positions.isEmpty()) {
+                return true;
+            }
+            /** <
+             * 0. Walls
+             *            *
+             *            |
+             *        * - x - *
+             *            |
+             *            *
+             * >
+             */
+            int[] checkPositionsX_aux = new int[]{-1, +0, +0};
+            int[] checkPositionsY_aux = new int[]{+0, +0, -1};
+            int checkPositionLenght_aux = 3;
+            int walls = 0;
+            for (int iter = 0; iter < checkPositionLenght_aux; iter++) {
+                int x = checkPositionsX_aux[iter];
+                int y = checkPositionsY_aux[iter];
+                if (iter == 0) {
+                    if (this.checkIfExist(new NonoPosicion(pos.getCoorX() + x, pos.getCoorY() + y), Orientacion.VERTICAL)) {
+                        walls++;
+                    }
+                }
+                if (iter == 1) {
+                    if (ori == Orientacion.HORIZONTAL) {
+                        if (this.checkIfExist(new NonoPosicion(pos.getCoorX() + x, pos.getCoorY() + y), Orientacion.VERTICAL)) {
+                            walls++;
+                        }
+                    }
+                    if (ori == Orientacion.VERTICAL) {
+                        if (this.checkIfExist(new NonoPosicion(pos.getCoorX() + x, pos.getCoorY() + y), Orientacion.HORIZONTAL)) {
+                            walls++;
+                        }
+                    }
+                }
+                if (iter == 2) {
+                    if (this.checkIfExist(new NonoPosicion(pos.getCoorX() + x, pos.getCoorY() + y), Orientacion.HORIZONTAL)) {
+                        walls++;
+                    }
+                }
+            }
+            if (walls > 0) {
+                return true;
+            }
             /** <
              * 1. TOP
              *          1=|
              *        3 - * - 2
              *            ?
-             *            *
+             *            x
              * >
              */
-            int top_c = 0;
-            int[] checkPositionsX = new int[]{-1, +0, +0};
-            int[] checkPositionsY = new int[]{+0, +0, -1};
-            int checkPositionLenght = 3;
-            for (int iter = 0; iter < checkPositionLenght; iter++) {
-                int x = checkPositionsX[iter];
-                int y = checkPositionsY[iter];
-                if (iter == 0) {
-                    if (this.checkIfExist(new NonoPosicion(pos.getCoorX() + x, pos.getCoorY() + y), Orientacion.VERTICAL)) {
-                        top_c++;
-                    }
-                }
-                if (iter == 1 || iter == 2) {
-                    if (this.checkIfExist(new NonoPosicion(pos.getCoorX() + x, pos.getCoorY() + y), Orientacion.HORIZONTAL)) {
-                        top_c++;
-                    }
-                }
-            }
-            if (top_c > 0) {
-                return true;
-            }
-
+//            if (ori == Orientacion.VERTICAL) {
+//                int top_c = 0;
+//                int[] checkPositionsX = new int[]{-1, +0, +0};
+//                int[] checkPositionsY = new int[]{+0, +0, -1};
+//                int checkPositionLenght = 3;
+//                for (int iter = 0; iter < checkPositionLenght; iter++) {
+//                    int x = checkPositionsX[iter];
+//                    int y = checkPositionsY[iter];
+//                    if (iter == 0) {
+//                        if (this.checkIfExist(new NonoPosicion(pos.getCoorX() + x, pos.getCoorY() + y), Orientacion.VERTICAL)) {
+//                            top_c++;
+//                        }
+//                    }
+//                    if (iter == 1 || iter == 2) {
+//                        if (this.checkIfExist(new NonoPosicion(pos.getCoorX() + x, pos.getCoorY() + y), Orientacion.HORIZONTAL)) {
+//                            top_c++;
+//                        }
+//                    }
+//                }
+//                if (top_c > 0) {
+//                    return true;
+//                }
+//            }
             /** <
              * 2. RIGHT
              *          1=|
-             *       * ?? * - 2
+             *        x ? * - 2
              *          3=|
              * >
              */
-            int[] checkPositionsX_2 = new int[]{-1, +0};
-            int[] checkPositionsY_2 = new int[]{+1, +1};
-            int right_c = 0;
-            int checkPositionLenght_2 = 2;
-            for (int iter = 0; iter < checkPositionLenght_2; iter++) {
-                int x = checkPositionsX_2[iter];
-                int y = checkPositionsY_2[iter];
-                if (iter == 0 || iter == 1) {
-                    if (this.checkIfExist(new NonoPosicion(pos.getCoorX() + x, pos.getCoorY() + y), Orientacion.VERTICAL)) {
-                        right_c++;
+            if (ori == Orientacion.HORIZONTAL) {
+                int[] checkPositionsX_2 = new int[]{-1, +0};
+                int[] checkPositionsY_2 = new int[]{+1, +1};
+                int right_c = 0;
+                int checkPositionLenght_2 = 2;
+                for (int iter = 0; iter < checkPositionLenght_2; iter++) {
+                    int x = checkPositionsX_2[iter];
+                    int y = checkPositionsY_2[iter];
+                    if (iter == 0 || iter == 1) {
+                        if (this.checkIfExist(new NonoPosicion(pos.getCoorX() + x, pos.getCoorY() + y), Orientacion.VERTICAL)) {
+                            right_c++;
+                        }
+                    }
+                    if (iter == 1) {
+                        if (this.checkIfExist(new NonoPosicion(pos.getCoorX() + x, pos.getCoorY() + y), Orientacion.HORIZONTAL)) {
+                            right_c++;
+                        }
                     }
                 }
-                if (iter == 1) {
-                    if (this.checkIfExist(new NonoPosicion(pos.getCoorX() + x, pos.getCoorY() + y), Orientacion.HORIZONTAL)) {
-                        right_c++;
-                    }
+                if (right_c > 0) {
+                    return true;
                 }
             }
-            if (right_c > 0) {
-                return true;
-            }
-
             /** <
              * 3. DOWN
-             *            *
+             *            x
              *            ?
              *        3 - * - 1
              *          2=|
              * >
              */
-            int[] checkPositionsX_3 = new int[]{+1, +1};
-            int[] checkPositionsY_3 = new int[]{+0, -1};
-            int checkPositionLenght_3 = 2;
-            int down_c = 0;
-            for (int iter = 0; iter < checkPositionLenght_3; iter++) {
-                int x = checkPositionsX_3[iter];
-                int y = checkPositionsY_3[iter];
-                if (iter == 0) {
-                    if (this.checkIfExist(new NonoPosicion(pos.getCoorX() + x, pos.getCoorY() + y), Orientacion.VERTICAL)) {
-                        down_c++;
+            if (ori == Orientacion.VERTICAL) {
+                int[] checkPositionsX_3 = new int[]{+1, +1};
+                int[] checkPositionsY_3 = new int[]{+0, -1};
+                int checkPositionLenght_3 = 2;
+                int down_c = 0;
+                for (int iter = 0; iter < checkPositionLenght_3; iter++) {
+                    int x = checkPositionsX_3[iter];
+                    int y = checkPositionsY_3[iter];
+                    if (iter == 0) {
+                        if (this.checkIfExist(new NonoPosicion(pos.getCoorX() + x, pos.getCoorY() + y), Orientacion.VERTICAL)) {
+                            down_c++;
+                        }
+                    }
+                    if (iter == 0 || iter == 1) {
+                        if (this.checkIfExist(new NonoPosicion(pos.getCoorX() + x, pos.getCoorY() + y), Orientacion.HORIZONTAL)) {
+                            down_c++;
+                        }
                     }
                 }
-                if (iter == 0 || iter == 1) {
-                    if (this.checkIfExist(new NonoPosicion(pos.getCoorX() + x, pos.getCoorY() + y), Orientacion.HORIZONTAL)) {
-                        down_c++;
-                    }
+                if (down_c > 0) {
+                    return true;
                 }
             }
-            if (down_c > 0) {
-                return true;
-            }
-
             /** <
              * 4. LEFT
              *          1=|
-             *        3 - * ?? *
+             *        3 - * ? x
              *          2=|
              *
              * >
              */
-            int[] checkPositionsX_4 = new int[]{+1, +0, +0};
-            int[] checkPositionsY_4 = new int[]{-1, -1, -2};
-            int checkPositionLenght_4 = 3;
-            int left_c = 0;
-            for (int iter = 0; iter < checkPositionLenght_4; iter++) {
-                int x = checkPositionsX_4[iter];
-                int y = checkPositionsY_4[iter];
-                if (iter == 0 || iter == 1) {
-                    if (this.checkIfExist(new NonoPosicion(pos.getCoorX() + x, pos.getCoorY() + y), Orientacion.VERTICAL)) {
-                        left_c++;
-                    }
-                }
-                if (iter == 2) {
-                    if (this.checkIfExist(new NonoPosicion(pos.getCoorX() + x, pos.getCoorY() + y), Orientacion.HORIZONTAL)) {
-                        left_c++;
-                    }
-                }
-            }
-            if (left_c > 0) {
-                return true;
-            }
-
-            /** <
-             * 0. Walls
-             *            1
-             *            |
-             *        3 - 2 - *
-             *            |
-             *            *
-             * >
-             */
-//            System.out.println("ss" + pos);
-//            int[] checkPositionsX_aux = new int[]{-1, +0, +0};
-//            int[] checkPositionsY_aux = new int[]{+0, +0, -1};
-//            int checkPositionLenght_aux = 3;
-//            int walls = 0;
-//            for (int iter = 0; iter < checkPositionLenght_aux; iter++) {
-//                int x = checkPositionsX_aux[iter];
-//                int y = checkPositionsY_aux[iter];
-//                if (iter == 0 || iter == 1) {
-//                    if (this.checkIfExist(new NonoPosicion(pos.getCoorX() + x, pos.getCoorY() + y), Orientacion.VERTICAL)) {
-//                        walls++;
+            if (ori == Orientacion.HORIZONTAL) {
+//                int[] checkPositionsX_4 = new int[]{+1, +0, +0};
+//                int[] checkPositionsY_4 = new int[]{+1, -1, -2};
+//                int checkPositionLenght_4 = 3;
+//                int left_c = 0;
+//                for (int iter = 0; iter < checkPositionLenght_4; iter++) {
+//                    int x = checkPositionsX_4[iter];
+//                    int y = checkPositionsY_4[iter];
+//                    if (iter == 0 || iter == 1) {
+//                        if (this.checkIfExist(new NonoPosicion(pos.getCoorX() + x, pos.getCoorY() + y), Orientacion.VERTICAL)) {
+//                            left_c++;
+//                        }
+//                    }
+//                    if (iter == 2) {
+//                        if (this.checkIfExist(new NonoPosicion(pos.getCoorX() + x, pos.getCoorY() + y), Orientacion.HORIZONTAL)) {
+//                            left_c++;
+//
+//                        }
 //                    }
 //                }
-//                if (iter == 1 || iter == 2) {
-//                    if (this.checkIfExist(new NonoPosicion(pos.getCoorX() + x, pos.getCoorY() + y), Orientacion.HORIZONTAL)) {
-//                        walls++;
-//                    }
+//                if (left_c > 0) {
+//                    return true;
 //                }
-//            }
-//            if (walls > 0) {
-//                return true;
-//            }
+            }
             return false;
         }
 
@@ -239,9 +257,11 @@ public class JuegoEncerrado {
         public void addNewPosition(NonoPosicion pos, NonoFicha ficha) {
             if (!isPositionValid(pos, ficha.getOrientacion())) {
                 // Comentar y descomentar para hacer debug
-                throw new Error("Posicion no válida" + pos + "" + ficha.getOrientacion());
+                this.show();
+                throw new Error("Posicion no válida: " + pos + " " + ficha.getOrientacion());
             }
             if (checkIfExist(pos, ficha.getOrientacion())) {
+                this.show();
                 throw new Error("Ficha ya existia, " + pos + "" + ficha.getOrientacion());
             }
             NonoFicha[] o = this.positions.getOrDefault(pos, new NonoFicha[2]);
@@ -358,6 +378,71 @@ public class JuegoEncerrado {
                 }
             }
             return allWalls;
+        }
+
+        public ArrayList<Tuple> childOfNode(Node node, int depth) {
+            ArrayList<Tuple> nodes = new ArrayList<>();
+            for (int x = 0; x < node.tablero_test.SIZE_X; x++) {
+                for (int y = 0; y < node.tablero_test.SIZE_Y; y++) {
+
+                    // 1. Caja arriba derecha
+//                Node new_node_1 = new Node();
+//                new_node_1.ficha = new JuegoEncerrado.NonoFicha();
+//                new_node_1.ficha.setColor(node.ficha.getColor());
+//                new_node_1.ficha.setOrientacion(Vocabulario.Orientacion.VERTICAL);
+//                new_node_1.posicion = new NonoPosicion(x - 1, y);
+//                if (!nodes.contains(new_node_1)) {
+//                    if (node.tablero_test.checkPositionValid(new_node_1.posicion, new_node_1.ficha.getOrientacion())) {
+//                        new_node_1.tablero_test = (NonoTablero) NonoTablero.clone(node.tablero_test);
+//                        if (!new_node_1.tablero_test.checkIfExist(new_node_1.posicion, new_node_1.ficha.getOrientacion())) {
+//                            new_node_1.tablero_test.addNewPosition(new_node_1.posicion, new_node_1.ficha);
+//                            nodes.add(new_node_1);
+//                        }
+//                    }
+//                }
+                    // 2. Caja abajo derecha
+                    Tuple new_node_2 = new Tuple();
+                    new_node_2.posicion = new NonoPosicion(x, y);
+                    new_node_2.ficha = new JuegoEncerrado.NonoFicha();
+                    new_node_2.ficha.setColor(node.ficha.getColor());
+                    new_node_2.ficha.setOrientacion(Vocabulario.Orientacion.HORIZONTAL);
+                    if (this.isPositionValid(new_node_2.posicion, new_node_2.ficha.getOrientacion())) {
+                        if (!this.checkIfExist(new_node_2.posicion, new_node_2.ficha.getOrientacion())) {
+                            nodes.add(new_node_2);
+                        }
+                    }
+
+                    // 3. Caja abajo izquierda
+                    Tuple new_node_3 = new Tuple();
+                    new_node_3.posicion = new NonoPosicion(x, y);
+                    new_node_3.ficha = new JuegoEncerrado.NonoFicha();
+                    new_node_3.ficha.setColor(node.ficha.getColor());
+                    new_node_3.ficha.setOrientacion(Vocabulario.Orientacion.VERTICAL);
+                    if (this.isPositionValid(new_node_3.posicion, new_node_3.ficha.getOrientacion())) {
+                        if (!this.checkIfExist(new_node_3.posicion, new_node_3.ficha.getOrientacion())) {
+                            nodes.add(new_node_3);
+                        }
+                    }
+
+                    // 4. Caja arriba izquierda
+//                Node new_node_4 = new Node();
+//                new_node_4.ficha = new JuegoEncerrado.NonoFicha();
+//                new_node_4.ficha.setColor(node.ficha.getColor());
+//                new_node_4.ficha.setOrientacion(Vocabulario.Orientacion.HORIZONTAL);
+//                new_node_4.posicion = new NonoPosicion(x, y - 1);
+//                if (!nodes.contains(new_node_4)) {
+//                    if (node.tablero_test.checkPositionValid(new_node_4.posicion, new_node_4.ficha.getOrientacion())) {
+//                        new_node_4.tablero_test = (NonoTablero) NonoTablero.clone(node.tablero_test);
+//                        if (!new_node_4.tablero_test.checkIfExist(new_node_4.posicion, new_node_4.ficha.getOrientacion())) {
+//                            new_node_4.tablero_test.addNewPosition(new_node_4.posicion, new_node_4.ficha);
+//                            nodes.add(new_node_4);
+//                        }
+//                    }
+//
+//                }
+                }
+            }
+            return nodes;
         }
 
         public static Object clone(NonoTablero object) {
