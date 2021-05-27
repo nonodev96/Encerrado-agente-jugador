@@ -268,10 +268,12 @@ public class JuegoEncerrado {
             if (ficha.getOrientacion() == Orientacion.HORIZONTAL) {
                 o[NonoOrientacion.HORIZONTAL.ordinal()] = new NonoFicha();
                 o[NonoOrientacion.HORIZONTAL.ordinal()].setOrientacion(Orientacion.HORIZONTAL);
+                o[NonoOrientacion.HORIZONTAL.ordinal()].setColor(ficha.getColor());
             }
             if (ficha.getOrientacion() == Orientacion.VERTICAL) {
                 o[NonoOrientacion.VERTICAL.ordinal()] = new NonoFicha();
                 o[NonoOrientacion.VERTICAL.ordinal()].setOrientacion(Orientacion.VERTICAL);
+                o[NonoOrientacion.VERTICAL.ordinal()].setColor(ficha.getColor());
             }
             this.positions.put(pos, o);
         }
@@ -462,6 +464,15 @@ public class JuegoEncerrado {
                 copy.positions.put(key, value_copy);
             }
             return copy;
+        }
+
+        public Pair<NonoPosicion, NonoFicha> getRoot() {
+            for (Map.Entry<NonoPosicion, NonoFicha[]> entry : this.positions.entrySet()) {
+                if (entry.getValue() != null) {
+                    return new Pair(entry.getKey(), entry.getValue());
+                }
+            }
+            return null;
         }
     }
 

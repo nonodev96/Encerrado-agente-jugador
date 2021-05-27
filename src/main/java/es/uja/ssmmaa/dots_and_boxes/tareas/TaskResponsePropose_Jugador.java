@@ -16,10 +16,7 @@ import es.uja.ssmmaa.dots_and_boxes.agentes.AgenteJugador;
 import static es.uja.ssmmaa.dots_and_boxes.project.Constantes.MAX_PARTIDAS;
 import static es.uja.ssmmaa.dots_and_boxes.project.Constantes.MY_GAME;
 import es.uja.ssmmaa.ontologia.encerrado.Encerrado;
-import es.uja.ssmmaa.ontologia.juegoTablero.AgenteJuego;
 import es.uja.ssmmaa.ontologia.juegoTablero.Jugador;
-import jade.content.AgentAction;
-import jade.content.Concept;
 import jade.content.lang.Codec;
 import jade.content.onto.OntologyException;
 import jade.core.Agent;
@@ -29,8 +26,6 @@ import jade.lang.acl.ACLMessage;
 import jade.lang.acl.MessageTemplate;
 import jade.proto.ProposeResponder;
 import jade.content.onto.basic.Action;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 /**
  *
@@ -53,7 +48,8 @@ public class TaskResponsePropose_Jugador extends ProposeResponder {
         try {
             Action action = (Action) this.myAgent_jugador.getManager().extractContent(propose);
             ProponerJuego proponerJuego = (ProponerJuego) action.getAction();
-            reply = response_propuesta_de_juego(propose, proponerJuego);
+            // 
+            reply = responsePropuestaDeJuego(propose, proponerJuego);
 
         } catch (Codec.CodecException | OntologyException ex) {
             this.myAgent_jugador.addMsgConsole("Error al extraer la propuesta de juego en " + this.myAgent_jugador.getLocalName() + " de " + propose.getSender().getLocalName());
@@ -68,7 +64,7 @@ public class TaskResponsePropose_Jugador extends ProposeResponder {
      * @param propose
      * @return
      */
-    private ACLMessage response_propuesta_de_juego(ACLMessage propose, ProponerJuego proponerJuego) {
+    private ACLMessage responsePropuestaDeJuego(ACLMessage propose, ProponerJuego proponerJuego) {
         ACLMessage reply = propose.createReply();
         this.myAgent_jugador.addMsgConsole("content: ");
 
@@ -133,6 +129,7 @@ public class TaskResponsePropose_Jugador extends ProposeResponder {
                 this.myAgent_jugador.addMsgConsole("Error al meter la juego aceptado de " + this.myAgent_jugador.getLocalName() + " para " + propose.getSender().getLocalName());
             }
 
+            // Creamos el juego
             this.myAgent_jugador.CrearJuego(juegoPropuesto_Juego, juegoPropuesto_Encerrado, juegoPropuesto_Modo);
         }
 

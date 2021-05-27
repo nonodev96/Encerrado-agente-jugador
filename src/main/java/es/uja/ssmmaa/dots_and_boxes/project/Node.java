@@ -19,8 +19,8 @@ import javax.lang.model.SourceVersion;
 public class Node {
 
     JuegoEncerrado.NonoTablero tablero_test;
-    JuegoEncerrado.NonoPosicion posicion;
-    JuegoEncerrado.NonoFicha ficha;
+    public JuegoEncerrado.NonoPosicion posicion;
+    public JuegoEncerrado.NonoFicha ficha;
     int depth;
     Tuple next;
 

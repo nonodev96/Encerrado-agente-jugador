@@ -29,9 +29,12 @@ import es.uja.ssmmaa.dots_and_boxes.util.GestorSubscripciones;
 
 import com.google.gson.Gson;
 import static es.uja.ssmmaa.dots_and_boxes.project.Constantes.MY_GAME;
+import es.uja.ssmmaa.dots_and_boxes.project.Game_MiniMax;
 import es.uja.ssmmaa.dots_and_boxes.tareas.TaskContractNetResponder_Jugador;
 import es.uja.ssmmaa.dots_and_boxes.project.JuegoEncerrado;
+import es.uja.ssmmaa.dots_and_boxes.project.Node;
 import es.uja.ssmmaa.dots_and_boxes.project.V_Game;
+import static es.uja.ssmmaa.ontologia.Vocabulario.Color.NEGRO;
 import es.uja.ssmmaa.ontologia.encerrado.Encerrado;
 import es.uja.ssmmaa.ontologia.juegoTablero.Jugador;
 import es.uja.ssmmaa.ontologia.juegoTablero.PedirMovimiento;
@@ -62,6 +65,7 @@ import java.util.Deque;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.Map;
+import javafx.util.Pair;
 
 /**
  * <
@@ -93,7 +97,6 @@ import java.util.Map;
 public class AgenteJugador extends Agent implements SubscripcionDF, TasksJugadorSubs {
 
     private GestorSubscripciones gestor;
-    private Gson gson;
 
     // Para la generación y obtención del contenido de los mensages
     private ContentManager manager;
@@ -116,8 +119,7 @@ public class AgenteJugador extends Agent implements SubscripcionDF, TasksJugador
     private Map<String, V_Game> juegosMap;
 
     public AgenteJugador() {
-        this.gson = new Gson();
-
+        this.gestor = new GestorSubscripciones();
         this.agentesConocidos = new HashMap();
         this.subActivas = new HashMap<>();
 
@@ -131,7 +133,6 @@ public class AgenteJugador extends Agent implements SubscripcionDF, TasksJugador
         // Inicialización de las variables del agente
 
         this.agente_jugador_AID = getAID();
-        this.gestor = new GestorSubscripciones();
         this.UI_consola = new ConsolaJFrame(this);
 
         // Registro del agente en las Páginas Amarrillas
@@ -329,6 +330,14 @@ public class AgenteJugador extends Agent implements SubscripcionDF, TasksJugador
         throw new UnsupportedOperationException("Not supported yet.");
     }
 
+    public V_Game getJuego(String idJuego) {
+        return this.juegosMap.get(idJuego);
+    }
+
+    public void putJuego(String idJuego, V_Game game) {
+        this.juegosMap.put(idJuego, game);
+    }
+
     /*
      * Logs
      * ========================================================================
@@ -404,8 +413,14 @@ public class AgenteJugador extends Agent implements SubscripcionDF, TasksJugador
 
     public MovimientoEntregadoLinea IA(PedirMovimiento pedirMovimiento) {
         Jugador jugador = pedirMovimiento.getJugadorActivo();
-        String nombre = jugador.getNombre();
         AID jugadorAID = jugador.getAgenteJugador();
+        String nombre = jugador.getNombre();
+        boolean todoCorrecto = false;
+
+        // mi turno?
+        if (nombre.equals(this.agente_jugador_AID.getLocalName())) {
+            todoCorrecto = true;
+        }
 
         Partida partida = pedirMovimiento.getPartida();
         String idPartida = partida.getIdPartida();
@@ -418,19 +433,30 @@ public class AgenteJugador extends Agent implements SubscripcionDF, TasksJugador
 
         V_Game nonoJuegoJugador = this.getJuego(idJuego);
 
+        //
+        Node root = new Node();
+        Pair<JuegoEncerrado.NonoPosicion, JuegoEncerrado.NonoFicha> root_p = nonoJuegoJugador.juego.nonoTablero.getRoot();
+        root.posicion = root_p.getKey();
+        root.ficha = root_p.getValue();
+
+        Pair<Integer, Node> p = Game_MiniMax.minimax(root, 1, true);
+        Node best = p.getValue();
+        nonoJuegoJugador.juego.nonoTablero.addNewPosition(best.posicion, best.ficha);
+        //
+
         MovimientoEntregadoLinea movimientoEntregadoLinea = new MovimientoEntregadoLinea();
         movimientoEntregadoLinea.setPartida(partida);
         Movimiento movimiento = new Movimiento();
-        movimiento.setFicha(nonoJuegoJugador.ficha);
+        movimiento.setFicha(best.ficha);
 
         Posicion posicion = new Posicion();
-        posicion.setCoorX(2);
-        posicion.setCoorY(2);
+        posicion.setCoorX(best.posicion.getCoorX());
+        posicion.setCoorY(best.posicion.getCoorY());
 
         movimiento.setPosicion(posicion);
         movimientoEntregadoLinea.setMovimiento(movimiento);
         movimientoEntregadoLinea.setOrientacion(Vocabulario.Orientacion.HORIZONTAL);
-        boolean todoCorrecto = true;
+
         if (todoCorrecto) {
             return movimientoEntregadoLinea;
         } else {
@@ -438,28 +464,20 @@ public class AgenteJugador extends Agent implements SubscripcionDF, TasksJugador
         }
     }
 
-    private V_Game getJuego(String idJuego) {
-        return this.juegosMap.get(idJuego);
-    }
-
-    private void setJuego(String idJuego, V_Game game) {
-        this.juegosMap.put(idJuego, game);
-    }
-
     public void CrearJuego(Juego juegoPropuesto_Juego, Encerrado juegoPropuesto_Encerrado, Vocabulario.Modo juegoPropuesto_Modo) {
-
         String idJuego = juegoPropuesto_Juego.getIdJuego();
         TipoJuego tipoJuego = juegoPropuesto_Juego.getTipoJuego();
         int numJugadores = juegoPropuesto_Encerrado.getNumJugadores();
         int filas = juegoPropuesto_Encerrado.getFilas();
         int columnas = juegoPropuesto_Encerrado.getColumnas();
 
-        V_Game g = this.getJuego(idJuego);
-        if (g == null) {
-            g = new V_Game();
-        }
-       
+        Jugador jugador = new Jugador(this.getAID().getLocalName(), this.getAID());
 
+        V_Game juego = new V_Game(idJuego, jugador, Vocabulario.Color.NEGRO, filas, columnas);
+        juego.tipoJuego = tipoJuego;
+        juego.modo = juegoPropuesto_Modo;
+
+        this.putJuego(idJuego, juego);
     }
 
 }
