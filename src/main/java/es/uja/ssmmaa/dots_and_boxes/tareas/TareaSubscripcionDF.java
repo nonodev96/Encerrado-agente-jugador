@@ -5,6 +5,7 @@
  */
 package es.uja.ssmmaa.dots_and_boxes.tareas;
 
+import es.uja.ssmmaa.dots_and_boxes.interfaces.SubscripcionDF;
 import static es.uja.ssmmaa.ontologia.Vocabulario.JUEGOS;
 
 import es.uja.ssmmaa.ontologia.Vocabulario.TipoJuego;

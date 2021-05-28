@@ -5,9 +5,8 @@
  */
 package es.uja.ssmmaa.dots_and_boxes.tareas;
 
+import es.uja.ssmmaa.dots_and_boxes.interfaces.TasksJugador;
 import es.uja.ssmmaa.ontologia.Vocabulario;
-import es.uja.ssmmaa.ontologia.quatro.Ficha;
-import es.uja.ssmmaa.ontologia.juegoTablero.CompletarPartida;
 import es.uja.ssmmaa.ontologia.juegoTablero.MovimientoEntregadoLinea;
 import es.uja.ssmmaa.ontologia.quatro.Ficha;
 import es.uja.ssmmaa.ontologia.quatro.FichaEntregada;

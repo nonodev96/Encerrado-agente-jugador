@@ -5,12 +5,9 @@
  */
 package es.uja.ssmmaa.dots_and_boxes.project;
 
-import es.uja.ssmmaa.dots_and_boxes.project.JuegoEncerrado.NonoTablero;
 import es.uja.ssmmaa.dots_and_boxes.util.Tuple;
 import java.util.Comparator;
 import java.util.Objects;
-import java.util.PriorityQueue;
-import javax.lang.model.SourceVersion;
 
 /**
  *

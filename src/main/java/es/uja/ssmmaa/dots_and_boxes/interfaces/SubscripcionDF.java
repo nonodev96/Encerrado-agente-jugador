@@ -3,7 +3,7 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package es.uja.ssmmaa.dots_and_boxes.tareas;
+package es.uja.ssmmaa.dots_and_boxes.interfaces;
 
 import es.uja.ssmmaa.ontologia.Vocabulario;
 import jade.core.AID;

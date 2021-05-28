@@ -34,9 +34,13 @@ public class JuegoEncerrado {
         this.nonoTablero = new NonoTablero();
     }
 
+    public JuegoEncerrado(int size_x, int size_y) {
+        this.nonoTablero = new NonoTablero(size_x, size_y);
+    }
+
     public static class NonoTablero {
 
-        public HashMap<NonoPosicion, NonoFicha[]> positions;
+        private HashMap<NonoPosicion, NonoFicha[]> positions;
         public int SIZE_X;
         public int SIZE_Y;
 
@@ -50,6 +54,10 @@ public class JuegoEncerrado {
             this.positions = new HashMap<>();
             this.SIZE_X = size_x;
             this.SIZE_Y = size_y;
+        }
+
+        public NonoFicha[] getPosicion(NonoPosicion pos) {
+            return this.positions.get(pos);
         }
 
         /**

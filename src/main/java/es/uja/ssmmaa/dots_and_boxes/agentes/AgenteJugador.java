@@ -14,31 +14,27 @@ import es.uja.ssmmaa.ontologia.juegoTablero.EstadoPartida;
 import es.uja.ssmmaa.ontologia.juegoTablero.Juego;
 import es.uja.ssmmaa.ontologia.juegoTablero.Movimiento;
 import es.uja.ssmmaa.ontologia.juegoTablero.Partida;
-import es.uja.ssmmaa.ontologia.juegoTablero.InformarResultado;
 import es.uja.ssmmaa.ontologia.juegoTablero.MovimientoEntregadoLinea;
-
-import static es.uja.ssmmaa.dots_and_boxes.project.Constantes.TIME_OUT;
-import es.uja.ssmmaa.dots_and_boxes.gui.ConsolaJFrame;
-import es.uja.ssmmaa.dots_and_boxes.tareas.TaskIniciatorSubscription_Jugador;
-import es.uja.ssmmaa.dots_and_boxes.tareas.TaskResponsePropose_Jugador;
-import es.uja.ssmmaa.dots_and_boxes.tareas.TaskSendPropose_Jugador;
-import es.uja.ssmmaa.dots_and_boxes.tareas.TasksJugadorSubs;
-import es.uja.ssmmaa.dots_and_boxes.tareas.TareaSubscripcionDF;
-import es.uja.ssmmaa.dots_and_boxes.tareas.SubscripcionDF;
-import es.uja.ssmmaa.dots_and_boxes.util.GestorSubscripciones;
-
-import com.google.gson.Gson;
-import static es.uja.ssmmaa.dots_and_boxes.project.Constantes.MY_GAME;
-import es.uja.ssmmaa.dots_and_boxes.project.Game_MiniMax;
-import es.uja.ssmmaa.dots_and_boxes.tareas.TaskContractNetResponder_Jugador;
-import es.uja.ssmmaa.dots_and_boxes.project.JuegoEncerrado;
-import es.uja.ssmmaa.dots_and_boxes.project.Node;
-import es.uja.ssmmaa.dots_and_boxes.project.V_Game;
-import static es.uja.ssmmaa.ontologia.Vocabulario.Color.NEGRO;
 import es.uja.ssmmaa.ontologia.encerrado.Encerrado;
 import es.uja.ssmmaa.ontologia.juegoTablero.Jugador;
 import es.uja.ssmmaa.ontologia.juegoTablero.PedirMovimiento;
 import es.uja.ssmmaa.ontologia.juegoTablero.Posicion;
+
+import static es.uja.ssmmaa.dots_and_boxes.project.Constantes.TIME_OUT;
+import static es.uja.ssmmaa.dots_and_boxes.project.Constantes.MY_GAME;
+import es.uja.ssmmaa.dots_and_boxes.gui.ConsolaJFrame;
+import es.uja.ssmmaa.dots_and_boxes.project.Game_MiniMax;
+import es.uja.ssmmaa.dots_and_boxes.project.JuegoEncerrado;
+import es.uja.ssmmaa.dots_and_boxes.project.Node;
+import es.uja.ssmmaa.dots_and_boxes.project.Juego_Jugador;
+import es.uja.ssmmaa.dots_and_boxes.tareas.TaskIniciatorSubscription_Jugador;
+import es.uja.ssmmaa.dots_and_boxes.tareas.TaskResponsePropose_Jugador;
+import es.uja.ssmmaa.dots_and_boxes.tareas.TaskSendPropose_Jugador;
+import es.uja.ssmmaa.dots_and_boxes.interfaces.TasksJugadorSubs;
+import es.uja.ssmmaa.dots_and_boxes.tareas.TareaSubscripcionDF;
+import es.uja.ssmmaa.dots_and_boxes.interfaces.SubscripcionDF;
+import es.uja.ssmmaa.dots_and_boxes.tareas.TaskContractNetResponder_Jugador;
+import es.uja.ssmmaa.dots_and_boxes.util.GestorSubscripciones;
 
 import jade.content.ContentElement;
 import jade.content.ContentManager;
@@ -47,7 +43,6 @@ import jade.content.lang.sl.SLCodec;
 import jade.content.onto.BeanOntologyException;
 import jade.content.onto.Ontology;
 import jade.content.onto.OntologyException;
-import jade.content.onto.basic.Action;
 import jade.core.AID;
 import jade.core.Agent;
 import jade.core.MicroRuntime;
@@ -116,7 +111,7 @@ public class AgenteJugador extends Agent implements SubscripcionDF, TasksJugador
     public ArrayList<Juego> list_of_games;
     public LinkedList<String> mensajes;
 
-    private Map<String, V_Game> juegosMap;
+    private Map<String, Juego_Jugador> juegosMap;
 
     public AgenteJugador() {
         this.gestor = new GestorSubscripciones();
@@ -330,11 +325,11 @@ public class AgenteJugador extends Agent implements SubscripcionDF, TasksJugador
         throw new UnsupportedOperationException("Not supported yet.");
     }
 
-    public V_Game getJuego(String idJuego) {
+    public Juego_Jugador getJuego(String idJuego) {
         return this.juegosMap.get(idJuego);
     }
 
-    public void putJuego(String idJuego, V_Game game) {
+    public void putJuego(String idJuego, Juego_Jugador game) {
         this.juegosMap.put(idJuego, game);
     }
 
@@ -360,7 +355,7 @@ public class AgenteJugador extends Agent implements SubscripcionDF, TasksJugador
      * @param partida
      * @param estado
      */
-    private void estadoPartida(int status, Partida partida, Vocabulario.Estado estado) {
+    private void Inform_EstadoPartida(int status, Partida partida, Vocabulario.Estado estado) {
         this.addMsgConsole("EstadoPartida");
         // Contenido del mensaje representado en la ontología
         EstadoPartida estadoPartida = new EstadoPartida();
@@ -385,7 +380,7 @@ public class AgenteJugador extends Agent implements SubscripcionDF, TasksJugador
         addBehaviour(task);
     }
 
-    private void propose_MovimientoEntregado(Partida partida, Movimiento movimiento) {
+    private void Propose_MovimientoEntregado(Partida partida, Movimiento movimiento) {
         this.addMsgConsole("Propose_MovimientoEntregado");
         // Contenido del mensaje representado en la ontología
         MovimientoEntregadoLinea mel = new MovimientoEntregadoLinea();
@@ -431,7 +426,7 @@ public class AgenteJugador extends Agent implements SubscripcionDF, TasksJugador
         int maxRondas = partida.getMaxRondas();
         int ronda = partida.getRonda();
 
-        V_Game nonoJuegoJugador = this.getJuego(idJuego);
+        Juego_Jugador nonoJuegoJugador = this.getJuego(idJuego);
 
         //
         Node root = new Node();
@@ -473,7 +468,7 @@ public class AgenteJugador extends Agent implements SubscripcionDF, TasksJugador
 
         Jugador jugador = new Jugador(this.getAID().getLocalName(), this.getAID());
 
-        V_Game juego = new V_Game(idJuego, jugador, Vocabulario.Color.NEGRO, filas, columnas);
+        Juego_Jugador juego = new Juego_Jugador(idJuego, jugador, Vocabulario.Color.NEGRO, filas, columnas);
         juego.tipoJuego = tipoJuego;
         juego.modo = juegoPropuesto_Modo;
 

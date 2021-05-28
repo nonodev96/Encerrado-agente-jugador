@@ -8,7 +8,6 @@ package es.uja.ssmmaa.dots_and_boxes.util;
 import es.uja.ssmmaa.dots_and_boxes.project.JuegoEncerrado;
 import es.uja.ssmmaa.dots_and_boxes.project.JuegoEncerrado.NonoFicha;
 import es.uja.ssmmaa.dots_and_boxes.project.JuegoEncerrado.NonoPosicion;
-import es.uja.ssmmaa.dots_and_boxes.project.Node;
 import java.util.Objects;
 
 /**

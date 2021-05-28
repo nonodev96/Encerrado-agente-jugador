@@ -8,23 +8,18 @@ package es.uja.ssmmaa.dots_and_boxes.tareas;
 import es.uja.ssmmaa.dots_and_boxes.agentes.AgenteJugador;
 import es.uja.ssmmaa.ontologia.Vocabulario;
 import es.uja.ssmmaa.ontologia.Vocabulario.Color;
-import es.uja.ssmmaa.ontologia.Vocabulario.TipoJuego;
 import es.uja.ssmmaa.ontologia.encerrado.Ficha;
 import es.uja.ssmmaa.ontologia.juegoTablero.EstadoPartida;
 import es.uja.ssmmaa.ontologia.juegoTablero.FichaJuego;
-import es.uja.ssmmaa.ontologia.juegoTablero.Juego;
 import es.uja.ssmmaa.ontologia.juegoTablero.Jugador;
 import es.uja.ssmmaa.ontologia.juegoTablero.Movimiento;
 import es.uja.ssmmaa.ontologia.juegoTablero.MovimientoEntregadoLinea;
 import es.uja.ssmmaa.ontologia.juegoTablero.Partida;
 import es.uja.ssmmaa.ontologia.juegoTablero.PedirMovimiento;
 import es.uja.ssmmaa.ontologia.juegoTablero.Posicion;
-import jade.content.Concept;
 import jade.content.lang.Codec;
 import jade.content.onto.OntologyException;
 import jade.content.onto.basic.Action;
-import jade.content.onto.basic.Done;
-import jade.core.AID;
 import jade.core.Agent;
 import jade.domain.FIPAAgentManagement.FailureException;
 import jade.domain.FIPAAgentManagement.NotUnderstoodException;
@@ -32,8 +27,6 @@ import jade.domain.FIPAAgentManagement.RefuseException;
 import jade.lang.acl.ACLMessage;
 import jade.lang.acl.MessageTemplate;
 import jade.proto.ContractNetResponder;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 /**
  *
