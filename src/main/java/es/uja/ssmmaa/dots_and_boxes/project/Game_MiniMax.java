@@ -88,13 +88,14 @@ public class Game_MiniMax {
         }
     }
 
-    /** <
+    /**
+     * <pre>
      * De un punto puedes crear hasta 4 nodos hijos
      *
      *    |          1
      *  - * -      4 * 2
      *    |          3 x = default
-     * >
+     * </pre>
      *
      * @param node
      * @param maximizingPlayer
@@ -197,12 +198,14 @@ public class Game_MiniMax {
         //&& !node.tablero_test.checkIfExist(node.posicion, node.ficha.getOrientacion());
     }
 
-    /** <
+    /**
+     * <pre>
      *  Horizontal        Vertical
      *      | 1               |
      *    - * -             - * -
      *      | 2             2 | 1
-     * >
+     * </pre>
+     *
      * @param object
      * @param pos
      * @param ficha

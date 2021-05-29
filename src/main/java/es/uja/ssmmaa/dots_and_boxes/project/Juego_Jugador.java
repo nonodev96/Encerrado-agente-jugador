@@ -10,6 +10,7 @@ import static es.uja.ssmmaa.dots_and_boxes.project.Constantes.SIZE_TABLERO;
 import es.uja.ssmmaa.ontologia.Vocabulario;
 import es.uja.ssmmaa.ontologia.Vocabulario.Color;
 import es.uja.ssmmaa.ontologia.juegoTablero.Jugador;
+import java.util.HashMap;
 import java.util.Objects;
 
 /**
@@ -32,14 +33,20 @@ public class Juego_Jugador {
     // Control y UI
     public JuegoEncerrado juego;
     public Juego_UI juego_UI;
+    public int points;
+
+    // nombre Jugador -> Puntos
+    public HashMap<String, Integer> listaJugadores_puntos;
 
     public Juego_Jugador() {
         this.idJuego = "ID_JUEGO";
         this.color = Color.NULO;
-        
+
         this.juego = new JuegoEncerrado();
         this.juego.nonoTablero = new JuegoEncerrado.NonoTablero(SIZE_TABLERO, SIZE_TABLERO);
         this.juego_UI = new Juego_UI();
+        this.points = 0;
+        this.listaJugadores_puntos = new HashMap<>();
     }
 
     public Juego_Jugador(String idJuego, Jugador jugador, Color color, int size_x, int size_y) {
@@ -48,6 +55,8 @@ public class Juego_Jugador {
         this.juego = new JuegoEncerrado();
         this.juego.nonoTablero = new JuegoEncerrado.NonoTablero(size_x, size_y);
         this.juego_UI = new Juego_UI();
+        this.points = 0;
+        this.listaJugadores_puntos = new HashMap<>();
     }
 
     @Override

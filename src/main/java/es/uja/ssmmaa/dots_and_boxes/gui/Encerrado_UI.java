@@ -6,11 +6,12 @@
 package es.uja.ssmmaa.dots_and_boxes.gui;
 
 import es.uja.ssmmaa.dots_and_boxes.project.JuegoEncerrado;
+import es.uja.ssmmaa.dots_and_boxes.project.JuegoEncerrado.NonoFicha;
+import es.uja.ssmmaa.dots_and_boxes.project.JuegoEncerrado.NonoPosicion;
 import es.uja.ssmmaa.ontologia.Vocabulario;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Graphics;
-import java.awt.Graphics2D;
 
 /**
  *
@@ -23,6 +24,12 @@ public class Encerrado_UI extends javax.swing.JPanel {
     public Encerrado_UI() {
         initComponents();
         this.juegoEncerrado = new JuegoEncerrado();
+        NonoPosicion nonoPosicion = new JuegoEncerrado.NonoPosicion(3, 3);
+        NonoFicha nonoFicha = new JuegoEncerrado.NonoFicha();
+        nonoFicha.setColor(Vocabulario.Color.ROJO);
+        nonoFicha.setOrientacion(Vocabulario.Orientacion.HORIZONTAL);
+        //this.juegoEncerrado.nonoTablero.addNewPosition(nonoPosicion, nonoFicha);
+        
         this.setVisible(true);
         this.setSize(new Dimension(this.getWidth(), this.getHeight()));
     }
@@ -45,6 +52,7 @@ public class Encerrado_UI extends javax.swing.JPanel {
             for (int y = 0; y < juegoEncerrado.nonoTablero.SIZE_Y; y++) {
                 int xdraw = (x * size_x) + size_x;
                 int ydraw = (y * size_y) + size_y;
+                g.setColor(Color.BLACK);
                 g.drawOval(xdraw, ydraw, 10, 10);
 
                 JuegoEncerrado.NonoPosicion pos = new JuegoEncerrado.NonoPosicion(x, y);
@@ -58,10 +66,9 @@ public class Encerrado_UI extends javax.swing.JPanel {
                     g.setColor(Encerrado_UI.translateColor(ficha[1].getColor()));
                     g.drawLine(xdraw + translate, ydraw + translate, xdraw + translate, ydraw + size_y + 5);
                 }
-
             }
-
         }
+
     }
 
     @Override

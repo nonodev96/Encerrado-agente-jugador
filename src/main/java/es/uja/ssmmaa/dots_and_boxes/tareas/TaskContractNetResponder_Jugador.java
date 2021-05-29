@@ -6,8 +6,11 @@
 package es.uja.ssmmaa.dots_and_boxes.tareas;
 
 import es.uja.ssmmaa.dots_and_boxes.agentes.AgenteJugador;
+import es.uja.ssmmaa.dots_and_boxes.project.JuegoEncerrado;
+import es.uja.ssmmaa.dots_and_boxes.project.Juego_Jugador;
 import es.uja.ssmmaa.ontologia.Vocabulario;
 import es.uja.ssmmaa.ontologia.Vocabulario.Color;
+import es.uja.ssmmaa.ontologia.Vocabulario.Orientacion;
 import es.uja.ssmmaa.ontologia.encerrado.Ficha;
 import es.uja.ssmmaa.ontologia.juegoTablero.EstadoPartida;
 import es.uja.ssmmaa.ontologia.juegoTablero.FichaJuego;
@@ -20,6 +23,7 @@ import es.uja.ssmmaa.ontologia.juegoTablero.Posicion;
 import jade.content.lang.Codec;
 import jade.content.onto.OntologyException;
 import jade.content.onto.basic.Action;
+import jade.content.onto.basic.Done;
 import jade.core.Agent;
 import jade.domain.FIPAAgentManagement.FailureException;
 import jade.domain.FIPAAgentManagement.NotUnderstoodException;
@@ -94,14 +98,35 @@ public class TaskContractNetResponder_Jugador extends ContractNetResponder {
 
             Partida partida = movimientoEntregadoLinea.getPartida();
             Movimiento movimiento = movimientoEntregadoLinea.getMovimiento();
-            FichaJuego ficha = movimiento.getFicha();
-            Ficha f = new Ficha();
-            Color color = f.getColor();
-            Jugador jugador = f.getJugador();
 
-            Posicion posicion = movimiento.getPosicion();
-            int x = posicion.getCoorX();
-            int y = posicion.getCoorY();
+            Ficha ficha = (Ficha) movimiento.getFicha();
+            Jugador jugador = ficha.getJugador();
+
+            String idJuego = partida.getJuego().getIdJuego();
+
+            if (!jugador.getNombre().equals(this.myAgent_Jugador.getAID().getLocalName())) {
+                Posicion posicion = movimiento.getPosicion();
+                int x = posicion.getCoorX();
+                int y = posicion.getCoorY();
+                Orientacion orientacion = movimientoEntregadoLinea.getOrientacion();
+                Color color = ficha.getColor();
+
+                JuegoEncerrado.NonoPosicion nonoPosicion;
+                JuegoEncerrado.NonoFicha nonoFicha;
+
+                nonoPosicion = new JuegoEncerrado.NonoPosicion(x, y);
+                nonoFicha = new JuegoEncerrado.NonoFicha();
+
+                nonoFicha.setColor(color);
+                nonoFicha.setJugador(jugador);
+                nonoFicha.setOrientacion(orientacion);
+
+                // Mi estructura
+                Juego_Jugador jj = this.myAgent_Jugador.getJuego(idJuego);
+                jj.juego.nonoTablero.addNewPosition(nonoPosicion, nonoFicha);
+                
+                jj.juego_UI.updateJuego(jj.juego);
+            }
 
             this.myAgent_Jugador.addMsgConsole(
                     "El oponente del agente: "

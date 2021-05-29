@@ -32,26 +32,26 @@ import jade.content.onto.basic.Action;
  */
 public class TaskResponsePropose_Jugador extends ProposeResponder {
 
-    private final AgenteJugador myAgent_jugador;
+    private final AgenteJugador myAgent_Jugador;
 
     public TaskResponsePropose_Jugador(Agent a, MessageTemplate mt) {
         super(a, mt);
-        this.myAgent_jugador = (AgenteJugador) a;
-        this.myAgent_jugador.addMsgConsole("        --> ProposeResponder(Agent a, MessageTemplate mt)");
+        this.myAgent_Jugador = (AgenteJugador) a;
+        this.myAgent_Jugador.addMsgConsole("        --> ProposeResponder(Agent a, MessageTemplate mt)");
     }
 
     @Override
     protected ACLMessage prepareResponse(ACLMessage propose) throws NotUnderstoodException, RefuseException {
-        this.myAgent_jugador.addMsgConsole("        --> prepareResponse");
+        this.myAgent_Jugador.addMsgConsole("        --> prepareResponse");
         ACLMessage reply = null;
         try {
-            Action action = (Action) this.myAgent_jugador.getManager().extractContent(propose);
+            Action action = (Action) this.myAgent_Jugador.getManager().extractContent(propose);
             ProponerJuego proponerJuego = (ProponerJuego) action.getAction();
             // 
             reply = responsePropuestaDeJuego(propose, proponerJuego);
 
         } catch (Codec.CodecException | OntologyException ex) {
-            this.myAgent_jugador.addMsgConsole("Error al extraer la propuesta de juego en " + this.myAgent_jugador.getLocalName() + " de " + propose.getSender().getLocalName());
+            this.myAgent_Jugador.addMsgConsole("Error al extraer la propuesta de juego en " + this.myAgent_Jugador.getLocalName() + " de " + propose.getSender().getLocalName());
         }
 
         return reply;
@@ -65,7 +65,7 @@ public class TaskResponsePropose_Jugador extends ProposeResponder {
      */
     private ACLMessage responsePropuestaDeJuego(ACLMessage propose, ProponerJuego proponerJuego) {
         ACLMessage reply = propose.createReply();
-        this.myAgent_jugador.addMsgConsole("content: ");
+        this.myAgent_Jugador.addMsgConsole("content: ");
 
         // ===================================================================
         ProponerJuego propuesta_de_juego = proponerJuego;
@@ -88,7 +88,7 @@ public class TaskResponsePropose_Jugador extends ProposeResponder {
             justificacion.setDetalle(Vocabulario.Motivo.TIPO_JUEGO_NO_IMPLEMENTADO);
             errors++;
         }
-        if (this.myAgent_jugador.get_size_actives_games() >= MAX_PARTIDAS) {
+        if (this.myAgent_Jugador.get_size_actives_games() >= MAX_PARTIDAS) {
             justificacion.setDetalle(Vocabulario.Motivo.JUEGOS_ACTIVOS_SUPERADOS);
             errors++;
         }
@@ -97,15 +97,15 @@ public class TaskResponsePropose_Jugador extends ProposeResponder {
             errors++;
         }
 
-        this.myAgent_jugador.addMsgConsole("Log PropuestaJuego: " + propuesta_de_juego.toString());
+        this.myAgent_Jugador.addMsgConsole("Log PropuestaJuego: " + propuesta_de_juego.toString());
         if (errors != 0) {
 
             reply.setPerformative(ACLMessage.REJECT_PROPOSAL);
 
             try {
-                this.myAgent_jugador.getManager().fillContent(reply, justificacion);
+                this.myAgent_Jugador.getManager().fillContent(reply, justificacion);
             } catch (Codec.CodecException | OntologyException ex) {
-                this.myAgent_jugador.addMsgConsole("Error al meter la justificación de juego rechazado de " + this.myAgent_jugador.getLocalName() + " para " + propose.getSender().getLocalName());
+                this.myAgent_Jugador.addMsgConsole("Error al meter la justificación de juego rechazado de " + this.myAgent_Jugador.getLocalName() + " para " + propose.getSender().getLocalName());
             }
         } else {
             Juego juego = new Juego();
@@ -116,20 +116,20 @@ public class TaskResponsePropose_Jugador extends ProposeResponder {
             juegoAceptado.setJuego(juego);
             // TODO? agente juego
             Jugador agenteJuego = new Jugador();
-            agenteJuego.setAgenteJugador(this.myAgent_jugador.getAID());
-            agenteJuego.setNombre(this.myAgent_jugador.getName());
+            agenteJuego.setAgenteJugador(this.myAgent_Jugador.getAID());
+            agenteJuego.setNombre(this.myAgent_Jugador.getName());
             juegoAceptado.setAgenteJuego(agenteJuego);
 
             reply.setPerformative(ACLMessage.ACCEPT_PROPOSAL);
 
             try {
-                this.myAgent_jugador.getManager().fillContent(reply, juegoAceptado);
+                this.myAgent_Jugador.getManager().fillContent(reply, juegoAceptado);
             } catch (Codec.CodecException | OntologyException ex) {
-                this.myAgent_jugador.addMsgConsole("Error al meter la juego aceptado de " + this.myAgent_jugador.getLocalName() + " para " + propose.getSender().getLocalName());
+                this.myAgent_Jugador.addMsgConsole("Error al meter la juego aceptado de " + this.myAgent_Jugador.getLocalName() + " para " + propose.getSender().getLocalName());
             }
 
             // Creamos el juego
-            this.myAgent_jugador.CrearJuego(juegoPropuesto_Juego, juegoPropuesto_Encerrado, juegoPropuesto_Modo);
+            this.myAgent_Jugador.CrearJuego(juegoPropuesto_Juego, juegoPropuesto_Encerrado, juegoPropuesto_Modo);
         }
 
         return reply;

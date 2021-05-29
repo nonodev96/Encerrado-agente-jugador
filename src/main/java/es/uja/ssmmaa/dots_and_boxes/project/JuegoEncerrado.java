@@ -6,6 +6,7 @@
 package es.uja.ssmmaa.dots_and_boxes.project;
 
 import static es.uja.ssmmaa.dots_and_boxes.project.Constantes.SIZE_TABLERO;
+
 import es.uja.ssmmaa.dots_and_boxes.project.Constantes.NonoOrientacion;
 import es.uja.ssmmaa.dots_and_boxes.project.JuegoEncerrado.NonoPosicion;
 import es.uja.ssmmaa.dots_and_boxes.util.Tuple;
@@ -14,6 +15,7 @@ import es.uja.ssmmaa.ontologia.Vocabulario.Orientacion;
 import es.uja.ssmmaa.ontologia.encerrado.Ficha;
 import es.uja.ssmmaa.ontologia.juegoTablero.Jugador;
 import es.uja.ssmmaa.ontologia.juegoTablero.Posicion;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
@@ -22,7 +24,6 @@ import java.util.logging.Logger;
 import javafx.util.Pair;
 
 /**
- *
  * @author nono_
  */
 public class JuegoEncerrado {
@@ -84,14 +85,15 @@ public class JuegoEncerrado {
             if (this.positions.isEmpty()) {
                 return true;
             }
-            /** <
+            /**
+             * <pre>
              * 0. Walls
              *            *
              *            |
              *        * - x - *
              *            |
              *            *
-             * >
+             * </pre>
              */
             int[] checkPositionsX_aux = new int[]{-1, +0, +0};
             int[] checkPositionsY_aux = new int[]{+0, +0, -1};
@@ -126,13 +128,14 @@ public class JuegoEncerrado {
             if (walls > 0) {
                 return true;
             }
-            /** <
+            /**
+             * <pre>
              * 1. TOP
              *          1=|
              *        3 - * - 2
              *            ?
              *            x
-             * >
+             * </pre>
              */
 //            if (ori == Orientacion.VERTICAL) {
 //                int top_c = 0;
@@ -157,12 +160,13 @@ public class JuegoEncerrado {
 //                    return true;
 //                }
 //            }
-            /** <
+            /**
+             * <pre>
              * 2. RIGHT
              *          1=|
              *        x ? * - 2
              *          3=|
-             * >
+             * </pre>
              */
             if (ori == Orientacion.HORIZONTAL) {
                 int[] checkPositionsX_2 = new int[]{-1, +0};
@@ -187,13 +191,14 @@ public class JuegoEncerrado {
                     return true;
                 }
             }
-            /** <
+            /**
+             * <pre>
              * 3. DOWN
              *            x
              *            ?
              *        3 - * - 1
              *          2=|
-             * >
+             * </pre>
              */
             if (ori == Orientacion.VERTICAL) {
                 int[] checkPositionsX_3 = new int[]{+1, +1};
@@ -218,13 +223,14 @@ public class JuegoEncerrado {
                     return true;
                 }
             }
-            /** <
+            /**
+             * <pre>
              * 4. LEFT
              *          1=|
              *        3 - * ? x
              *          2=|
              *
-             * >
+             * </pre>
              */
             if (ori == Orientacion.HORIZONTAL) {
 //                int[] checkPositionsX_4 = new int[]{+1, +0, +0};
@@ -253,12 +259,14 @@ public class JuegoEncerrado {
             return false;
         }
 
-        /** <
+        /**
+         * <pre>
          * addNewPosition
          *
          *          * -
          *          |
-         * >
+         * </pre>
+         *
          * @param pos
          * @param ficha
          */
@@ -286,7 +294,10 @@ public class JuegoEncerrado {
             this.positions.put(pos, o);
         }
 
-        /** < 8 x 8
+        /**
+         * <pre>
+         *
+         * 8 x 8
          * x===================================
          * |   00- 01- 02  03  04  05  06  07 |
          * |   |   |   |                      |
@@ -308,7 +319,7 @@ public class JuegoEncerrado {
          *
          * El 0 es la horizontal
          * El 1 es la vertical
-         * >
+         * </pre>
          */
         public void show() {
             System.out.println("====y0==y1==y2==y3==y4==y5==y6==y7==");

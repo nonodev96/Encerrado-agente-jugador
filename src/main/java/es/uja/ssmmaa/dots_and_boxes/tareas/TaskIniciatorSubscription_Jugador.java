@@ -10,6 +10,7 @@ import es.uja.ssmmaa.ontologia.juegoTablero.IncidenciaJuego;
 import es.uja.ssmmaa.ontologia.juegoTablero.Justificacion;
 
 import es.uja.ssmmaa.dots_and_boxes.agentes.AgenteJugador;
+import es.uja.ssmmaa.ontologia.juegoTablero.Juego;
 
 import static jade.lang.acl.ACLMessage.AGREE;
 import static jade.lang.acl.ACLMessage.FAILURE;
@@ -23,6 +24,7 @@ import jade.core.AID;
 import jade.core.Agent;
 import jade.lang.acl.ACLMessage;
 import jade.proto.SubscriptionInitiator;
+import jade.util.leap.List;
 import java.util.Iterator;
 import java.util.Vector;
 
@@ -99,13 +101,21 @@ public class TaskIniciatorSubscription_Jugador extends SubscriptionInitiator {
 
             if (contenido instanceof ClasificacionJuego) {
                 // Finalización correcta del juego
-                this.myAgent_Jugador.addMsgConsole("CLASIFICACION\n" + (ClasificacionJuego) contenido);
-            } else {
+                ClasificacionJuego clasificacion = (ClasificacionJuego) contenido;
+                List listPuntuaciones = clasificacion.getListaPuntuacion();
+                List listJugadores = clasificacion.getListaJugadores();
+                Juego j = clasificacion.getJuego();
+                this.myAgent_Jugador.addMsgConsole("CLASIFICACION\n" + clasificacion);
+            } else if (contenido instanceof IncidenciaJuego) {
                 // El juego no ha finalizado
-                this.myAgent_Jugador.addMsgConsole("INCIDENCIA\n" + (IncidenciaJuego) contenido);
+                IncidenciaJuego incidenciaJuego = (IncidenciaJuego) contenido;
+                incidenciaJuego.getDetalle();
+                Juego j = incidenciaJuego.getJuego();
+                this.myAgent_Jugador.addMsgConsole("INCIDENCIA\n" + incidenciaJuego);
             }
-
-            this.myAgent_Jugador.setResultado(inform.getSender(), contenido);
+            
+            // TODO
+            // this.myAgent_Jugador.setResultado(inform.getSender(), contenido);
         } catch (Codec.CodecException | OntologyException ex) {
             this.myAgent_Jugador.addMsgConsole("Error en el formato del mensaje del agente " + inform.getSender().getLocalName());
         }

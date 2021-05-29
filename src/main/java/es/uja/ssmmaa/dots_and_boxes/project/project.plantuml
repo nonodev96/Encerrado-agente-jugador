@@ -1,0 +1,218 @@
+@startuml
+
+title __PROJECT's Class Diagram__\n
+
+  namespace  {
+    namespace s.uja.ssmmaa.dots_and_boxes.project {
+      interface es.uja.ssmmaa.dots_and_boxes.project.Constantes {
+          {static} + ACEPTAR : int
+          {static} + ESPERA : long
+          {static} + MAX_JUGADORES_PARTIDA : int
+          {static} + MAX_PARTIDAS : int
+          {static} + MY_GAME : TipoJuego
+          {static} + NO_ENCONTRADO : int
+          {static} + PRIMERO : int
+          {static} + SEGUNDO : int
+          {static} + SIZE_TABLERO : int
+          {static} + TIME_OUT : long
+          {static} + aleatorio : Random
+      }
+    }
+  }
+  
+
+  namespace  {
+    namespace s.uja.ssmmaa.dots_and_boxes.project {
+      enum NonoOrientacion {
+        HORIZONTAL
+        VERTICAL
+      }
+    }
+  }
+  
+
+  namespace  {
+    namespace s.uja.ssmmaa.dots_and_boxes.project {
+      enum Status {
+        RET_CANCEL
+        RET_OK
+        statusValue
+      }
+    }
+  }
+  
+
+  namespace  {
+    namespace s.uja.ssmmaa.dots_and_boxes.project {
+      class es.uja.ssmmaa.dots_and_boxes.project.Game_MiniMax {
+          {static} - DEBUG : boolean
+          {static} - DEBUG_SHOW : boolean
+          + Game_MiniMax()
+          {static} + analizeSection()
+          {static} + heuristic()
+          {static} + isTerminalNode()
+          {static} + minimax()
+          {static} + theBestIA()
+          {static} - childOfNode()
+      }
+    }
+  }
+  
+
+  namespace  {
+    namespace s.uja.ssmmaa.dots_and_boxes.project {
+      class es.uja.ssmmaa.dots_and_boxes.project.JuegoEncerrado {
+          + JuegoEncerrado()
+          + JuegoEncerrado()
+      }
+    }
+  }
+  
+
+  namespace  {
+    namespace s.uja.ssmmaa.dots_and_boxes.project {
+      class es.uja.ssmmaa.dots_and_boxes.project.JuegoEncerrado.NonoFicha {
+          + orientacion : Orientacion
+          + NonoFicha()
+          + NonoFicha()
+          + NonoFicha()
+          + clone()
+          + getOrientacion()
+          + setOrientacion()
+          + toString()
+      }
+    }
+  }
+  
+
+  namespace  {
+    namespace s.uja.ssmmaa.dots_and_boxes.project {
+      class es.uja.ssmmaa.dots_and_boxes.project.JuegoEncerrado.NonoPosicion {
+          + NonoPosicion()
+          + equals()
+          + hashCode()
+      }
+    }
+  }
+  
+
+  namespace  {
+    namespace s.uja.ssmmaa.dots_and_boxes.project {
+      class es.uja.ssmmaa.dots_and_boxes.project.JuegoEncerrado.NonoTablero {
+          + SIZE_X : int
+          + SIZE_Y : int
+          - positions : HashMap<NonoPosicion, NonoFicha[]>
+          + NonoTablero()
+          + NonoTablero()
+          + addNewPosition()
+          + checkAllWalls()
+          + checkIfExist()
+          + childOfNode()
+          {static} + clone()
+          + getPosicion()
+          + getRoot()
+          + isPositionValid()
+          + show()
+      }
+    }
+  }
+  
+
+  namespace  {
+    namespace s.uja.ssmmaa.dots_and_boxes.project {
+      class es.uja.ssmmaa.dots_and_boxes.project.Juego_Jugador {
+          + color : Color
+          + modo : Modo
+          + tipoJuego : TipoJuego
+          - idJuego : String
+          + Juego_Jugador()
+          + Juego_Jugador()
+          + equals()
+          + hashCode()
+      }
+    }
+  }
+  
+
+  namespace  {
+    namespace s.uja.ssmmaa.dots_and_boxes.project {
+      class es.uja.ssmmaa.dots_and_boxes.project.MultiKeyHashMap {
+          - mkMap : Map<K1, Map<K2, V>>
+          + MultiKeyHashMap()
+          + clear()
+          + containsKey()
+          + containsKey()
+          + get()
+          + get()
+          + getAllItems()
+          + getBySubKey()
+          + put()
+          + remove()
+          + size()
+          - remove()
+      }
+    }
+  }
+  
+
+  namespace  {
+    namespace s.uja.ssmmaa.dots_and_boxes.project {
+      class es.uja.ssmmaa.dots_and_boxes.project.Node {
+          ~ depth : int
+          + Node()
+          + equals()
+          + hashCode()
+          + toString()
+      }
+    }
+  }
+  
+
+  namespace  {
+    namespace s.uja.ssmmaa.dots_and_boxes.project {
+      class es.uja.ssmmaa.dots_and_boxes.project.Node.ComparatorImpl {
+          + ComparatorImpl()
+          + compare()
+      }
+    }
+  }
+  
+
+  namespace  {
+    namespace s.uja.ssmmaa.dots_and_boxes.project {
+      class es.uja.ssmmaa.dots_and_boxes.project.Test {
+          {static} + main()
+          {static} + main_()
+      }
+    }
+  }
+  
+
+  es.uja.ssmmaa.dots_and_boxes.project.Constantes +-down- es.uja.ssmmaa.dots_and_boxes.project.Constantes.NonoOrientacion
+  es.uja.ssmmaa.dots_and_boxes.project.Constantes +-down- es.uja.ssmmaa.dots_and_boxes.project.Constantes.Status
+  es.uja.ssmmaa.dots_and_boxes.project.JuegoEncerrado o-- es.uja.ssmmaa.dots_and_boxes.project.JuegoEncerrado.NonoTablero : nonoTablero
+  es.uja.ssmmaa.dots_and_boxes.project.JuegoEncerrado +-down- es.uja.ssmmaa.dots_and_boxes.project.JuegoEncerrado.NonoFicha
+  es.uja.ssmmaa.dots_and_boxes.project.JuegoEncerrado +-down- es.uja.ssmmaa.dots_and_boxes.project.JuegoEncerrado.NonoPosicion
+  es.uja.ssmmaa.dots_and_boxes.project.JuegoEncerrado +-down- es.uja.ssmmaa.dots_and_boxes.project.JuegoEncerrado.NonoTablero
+  es.uja.ssmmaa.dots_and_boxes.project.JuegoEncerrado.NonoFicha .up.|> java.lang.Cloneable
+  es.uja.ssmmaa.dots_and_boxes.project.JuegoEncerrado.NonoFicha -up-|> es.uja.ssmmaa.ontologia.encerrado.Ficha
+  es.uja.ssmmaa.dots_and_boxes.project.JuegoEncerrado.NonoPosicion .up.|> java.lang.Cloneable
+  es.uja.ssmmaa.dots_and_boxes.project.JuegoEncerrado.NonoPosicion -up-|> es.uja.ssmmaa.ontologia.juegoTablero.Posicion
+  es.uja.ssmmaa.dots_and_boxes.project.Juego_Jugador o-- es.uja.ssmmaa.dots_and_boxes.project.JuegoEncerrado : juego
+  es.uja.ssmmaa.dots_and_boxes.project.Juego_Jugador o-- es.uja.ssmmaa.dots_and_boxes.gui.Juego_UI : juego_UI
+  es.uja.ssmmaa.dots_and_boxes.project.Node o-- es.uja.ssmmaa.dots_and_boxes.project.JuegoEncerrado.NonoFicha : ficha
+  es.uja.ssmmaa.dots_and_boxes.project.Node o-- es.uja.ssmmaa.dots_and_boxes.project.JuegoEncerrado.NonoPosicion : posicion
+  es.uja.ssmmaa.dots_and_boxes.project.Node o-- es.uja.ssmmaa.dots_and_boxes.util.Tuple : next
+  es.uja.ssmmaa.dots_and_boxes.project.Node o-- es.uja.ssmmaa.dots_and_boxes.project.JuegoEncerrado.NonoTablero : tablero_test
+  es.uja.ssmmaa.dots_and_boxes.project.Node +-down- es.uja.ssmmaa.dots_and_boxes.project.Node.ComparatorImpl
+  es.uja.ssmmaa.dots_and_boxes.project.Node.ComparatorImpl .up.|> java.util.Comparator
+
+
+right footer
+
+
+PlantUML diagram generated by SketchIt! (https://bitbucket.org/pmesmeur/sketch.it)
+For more information about this tool, please contact philippe.mesmeur@gmail.com
+endfooter
+
+@enduml

@@ -7,6 +7,7 @@ package es.uja.ssmmaa.dots_and_boxes.agentes;
 
 import static es.uja.ssmmaa.ontologia.Vocabulario.JUEGOS;
 import static es.uja.ssmmaa.ontologia.Vocabulario.TIPOS_SERVICIO;
+
 import es.uja.ssmmaa.ontologia.Vocabulario;
 import es.uja.ssmmaa.ontologia.Vocabulario.TipoJuego;
 import es.uja.ssmmaa.ontologia.Vocabulario.TipoServicio;
@@ -22,6 +23,7 @@ import es.uja.ssmmaa.ontologia.juegoTablero.Posicion;
 
 import static es.uja.ssmmaa.dots_and_boxes.project.Constantes.TIME_OUT;
 import static es.uja.ssmmaa.dots_and_boxes.project.Constantes.MY_GAME;
+
 import es.uja.ssmmaa.dots_and_boxes.gui.ConsolaJFrame;
 import es.uja.ssmmaa.dots_and_boxes.project.Game_MiniMax;
 import es.uja.ssmmaa.dots_and_boxes.project.JuegoEncerrado;
@@ -54,19 +56,20 @@ import jade.domain.FIPANames;
 import jade.lang.acl.ACLMessage;
 import jade.lang.acl.MessageTemplate;
 import jade.proto.SubscriptionInitiator;
+
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.Deque;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.Map;
+
 import javafx.util.Pair;
 
 /**
  * <
- *
- * AgenteJugador - Dots and boxes
- *
+ * <h2>AgenteJugador - Dots and boxes</h2>
+ * <pre>
  * Es el agente que adopta el rol de jugador para uno de los juegos disponibles,
  * es decir, solo sabrá jugar a un único juego. El jugador debe diseñarse para
  * seguir correctamente las reglas del juego y será responsable de mantener un
@@ -74,24 +77,24 @@ import javafx.util.Pair;
  * agente actúa de forma autónoma, esto es, no requiere supervisión de un
  * usuario humano. Sus tareas principales serán:
  *
- *      - Aceptar la participación en un juego que le proponga un AgenteMonitor.
- *      Al menos debe aceptar jugar 3 juegos simultáneos.
- *
- *      - Realizar los turnos de juego que le sean solicitados para una partida
- *      perteneciente a uno de sus juegos activos.
- *
- *      - Recabar información del resultado de las partidas que esté jugando.
- *      De esta forma puede decidir si la partida ha concluido o no.
- *
- *      Es necesario conocer el número de juegos activos en los que está
- *      participando el jugador.
- * >
+ * - Aceptar la participación en un juego que le proponga un AgenteMonitor.
+ * Al menos debe aceptar jugar 3 juegos simultáneos.
+ * 
+ * - Realizar los turnos de juego que le sean solicitados para una partida
+ * perteneciente a uno de sus juegos activos.
+ * 
+ * - Recabar información del resultado de las partidas que esté jugando.
+ * De esta forma puede decidir si la partida ha concluido o no.
+ * 
+ * Es necesario conocer el número de juegos activos en los que está participando 
+ * el jugador.
+ * </pre>
  *
  * @author nono_
  */
 public class AgenteJugador extends Agent implements SubscripcionDF, TasksJugadorSubs {
 
-    private GestorSubscripciones gestor;
+    private final GestorSubscripciones gestor;
 
     // Para la generación y obtención del contenido de los mensages
     private ContentManager manager;
@@ -102,20 +105,20 @@ public class AgenteJugador extends Agent implements SubscripcionDF, TasksJugador
     // Agente consola
     private ConsolaJFrame UI_consola;
 
-    // Deberia ser Map<AID, Arraylist<Product>>, pero a json no le gusta AID como clave :(
+    // Debería ser Map<AID, Arraylist<Product>>, pero a json no le gusta AID como clave :(
     public AID agente_jugador_AID;
 
-    private Map<String, Deque<AID>> agentesConocidos;
-    private Map<String, TaskIniciatorSubscription_Jugador> subActivas;
+    private final Map<String, Deque<AID>> agentesConocidos;
+    private final Map<String, TaskIniciatorSubscription_Jugador> subActivas;
 
     public ArrayList<Juego> list_of_games;
     public LinkedList<String> mensajes;
 
-    private Map<String, Juego_Jugador> juegosMap;
+    private final Map<String, Juego_Jugador> juegosMap;
 
     public AgenteJugador() {
         this.gestor = new GestorSubscripciones();
-        this.agentesConocidos = new HashMap();
+        this.agentesConocidos = new HashMap<>();
         this.subActivas = new HashMap<>();
 
         this.list_of_games = new ArrayList<>();
@@ -167,7 +170,7 @@ public class AgenteJugador extends Agent implements SubscripcionDF, TasksJugador
     public void init() {
         for (TipoServicio servicio : TIPOS_SERVICIO) {
             for (TipoJuego juego : JUEGOS) {
-                agentesConocidos.put(servicio.name() + juego.name(), new LinkedList());
+                agentesConocidos.put(servicio.name() + juego.name(), new LinkedList<>());
             }
         }
 
@@ -175,7 +178,8 @@ public class AgenteJugador extends Agent implements SubscripcionDF, TasksJugador
         this.manager = new ContentManager();
         try {
             this.ontology = Vocabulario.getOntology(MY_GAME);
-            this.manager = (ContentManager) getContentManager();
+            // (ContentManager)
+            this.manager = getContentManager();
             this.manager.registerLanguage(this.codec);
             this.manager.registerOntology(this.ontology);
         } catch (BeanOntologyException ex) {
@@ -202,7 +206,7 @@ public class AgenteJugador extends Agent implements SubscripcionDF, TasksJugador
                 MessageTemplate.MatchProtocol(FIPANames.InteractionProtocol.FIPA_CONTRACT_NET),
                 MessageTemplate.MatchPerformative(ACLMessage.CFP)
         );
-        addBehaviour(new TaskContractNetResponder_Jugador(this, template_CN));;
+        addBehaviour(new TaskContractNetResponder_Jugador(this, template_CN));
 
         // Plantilla para responder mensajes FIPA_PROPOSE
         MessageTemplate template_RP = MessageTemplate.and(
@@ -220,7 +224,7 @@ public class AgenteJugador extends Agent implements SubscripcionDF, TasksJugador
         this.addMsgConsole("addAgent    juego: " + juego.name());
         this.addMsgConsole("addAgent Servicio: " + servicio.name());
         this.addMsgConsole("=============================================");
-        Deque<AID> lista = this.agentesConocidos.getOrDefault(servicio.name() + juego.name(), new LinkedList());
+        Deque<AID> lista = this.agentesConocidos.getOrDefault(servicio.name() + juego.name(), new LinkedList<>());
 
         switch (servicio) {
             case JUGADOR:
@@ -347,13 +351,13 @@ public class AgenteJugador extends Agent implements SubscripcionDF, TasksJugador
      * ========================================================================
      */
     /**
-     * <
-     * status = ACLMessage.REFUSE
-     * status = ACLMessage.PROPOSE
-     * >
-     * @param status
-     * @param partida
-     * @param estado
+     * <p>
+     * status = ACLMessage.REFUSE status = ACLMessage.PROPOSE
+     * </p>
+     *
+     * @param status Representa el ACLMessage status
+     * @param partida Representa la partida
+     * @param estado Representa el estado de una partida
      */
     private void Inform_EstadoPartida(int status, Partida partida, Vocabulario.Estado estado) {
         this.addMsgConsole("EstadoPartida");
@@ -426,6 +430,7 @@ public class AgenteJugador extends Agent implements SubscripcionDF, TasksJugador
         int maxRondas = partida.getMaxRondas();
         int ronda = partida.getRonda();
 
+        // Se recoge el juego para poder modificarlo.
         Juego_Jugador nonoJuegoJugador = this.getJuego(idJuego);
 
         //
@@ -437,6 +442,11 @@ public class AgenteJugador extends Agent implements SubscripcionDF, TasksJugador
         Pair<Integer, Node> p = Game_MiniMax.minimax(root, 1, true);
         Node best = p.getValue();
         nonoJuegoJugador.juego.nonoTablero.addNewPosition(best.posicion, best.ficha);
+
+        if (nonoJuegoJugador.juego.nonoTablero.checkAllWalls(best.posicion)) {
+            nonoJuegoJugador.points += p.getKey();
+
+        }
         //
 
         MovimientoEntregadoLinea movimientoEntregadoLinea = new MovimientoEntregadoLinea();
@@ -450,7 +460,7 @@ public class AgenteJugador extends Agent implements SubscripcionDF, TasksJugador
 
         movimiento.setPosicion(posicion);
         movimientoEntregadoLinea.setMovimiento(movimiento);
-        movimientoEntregadoLinea.setOrientacion(Vocabulario.Orientacion.HORIZONTAL);
+        movimientoEntregadoLinea.setOrientacion(best.ficha.getOrientacion());
 
         if (todoCorrecto) {
             return movimientoEntregadoLinea;
@@ -471,6 +481,7 @@ public class AgenteJugador extends Agent implements SubscripcionDF, TasksJugador
         Juego_Jugador juego = new Juego_Jugador(idJuego, jugador, Vocabulario.Color.NEGRO, filas, columnas);
         juego.tipoJuego = tipoJuego;
         juego.modo = juegoPropuesto_Modo;
+        juego.juego_UI.setVisible(true);
 
         this.putJuego(idJuego, juego);
     }

@@ -60,8 +60,8 @@ public class Test {
             root.ficha.setColor(alternate ? Vocabulario.Color.NEGRO : Vocabulario.Color.ROJO);
             root.ficha.setOrientacion(Vocabulario.Orientacion.HORIZONTAL);
             root.tablero_test = (NonoTablero) NonoTablero.clone(tablero);
-//            Pair<Integer, Node> p = Game_MiniMax.minimax(root, alternate ? depth : depth + 1, true);
-            Pair<Integer, Node> p = Game_MiniMax.minimax(root, alternate?2:3, true);
+            Pair<Integer, Node> p = Game_MiniMax.minimax(root, alternate ? depth : depth + 1, true);
+//            Pair<Integer, Node> p = Game_MiniMax.minimax(root, alternate?2:3, true);
             int mm_value = p.getKey();
             Node mm_node = p.getValue();
 

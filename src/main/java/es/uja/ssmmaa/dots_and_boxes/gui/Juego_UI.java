@@ -15,7 +15,7 @@ import es.uja.ssmmaa.ontologia.Vocabulario;
  */
 public class Juego_UI extends javax.swing.JFrame {
 
-    public JuegoEncerrado juego;
+    public JuegoEncerrado juegoEncerrado;
 
     /**
      *
@@ -25,14 +25,19 @@ public class Juego_UI extends javax.swing.JFrame {
         initComponents();
         this.setTitle("Jugador UI");
 
-        this.juego = new JuegoEncerrado();
-        juego.nonoTablero.addNewPosition(new JuegoEncerrado.NonoPosicion(1, 1), new JuegoEncerrado.NonoFicha(null, Vocabulario.Color.ROJO, Vocabulario.Orientacion.HORIZONTAL));
-        juego.nonoTablero.addNewPosition(new JuegoEncerrado.NonoPosicion(1, 1), new JuegoEncerrado.NonoFicha(null, Vocabulario.Color.NEGRO, Vocabulario.Orientacion.VERTICAL));
-        juego.nonoTablero.addNewPosition(new JuegoEncerrado.NonoPosicion(1, 2), new JuegoEncerrado.NonoFicha(null, Vocabulario.Color.NEGRO, Vocabulario.Orientacion.VERTICAL));
+        this.juegoEncerrado = new JuegoEncerrado();
+        juegoEncerrado.nonoTablero.addNewPosition(new JuegoEncerrado.NonoPosicion(1, 1), new JuegoEncerrado.NonoFicha(null, Vocabulario.Color.ROJO, Vocabulario.Orientacion.HORIZONTAL));
+        juegoEncerrado.nonoTablero.addNewPosition(new JuegoEncerrado.NonoPosicion(1, 1), new JuegoEncerrado.NonoFicha(null, Vocabulario.Color.NEGRO, Vocabulario.Orientacion.VERTICAL));
+        juegoEncerrado.nonoTablero.addNewPosition(new JuegoEncerrado.NonoPosicion(1, 2), new JuegoEncerrado.NonoFicha(null, Vocabulario.Color.NEGRO, Vocabulario.Orientacion.VERTICAL));
 
-        this.encerrado_UI.juegoEncerrado = juego;
+        this.encerrado_UI.juegoEncerrado = juegoEncerrado;
         this.encerrado_UI.setSize(400, 300);
         this.encerrado_UI.setVisible(true);
+    }
+    
+    public void updateJuego(JuegoEncerrado juegoEncerrado){
+        this.encerrado_UI.juegoEncerrado = juegoEncerrado;
+        this.juegoEncerrado = juegoEncerrado;
     }
 
     /**
