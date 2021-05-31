@@ -82,4 +82,9 @@ public class Juego_Jugador {
         return true;
     }
 
+    @Override
+    public String toString() {
+        return "Juego_Jugador{" + "idJuego=" + idJuego + ", tipoJuego=" + tipoJuego + ", modo=" + modo + '}';
+    }
+
 }

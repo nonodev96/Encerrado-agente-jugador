@@ -35,8 +35,11 @@ import es.uja.ssmmaa.dots_and_boxes.tareas.TaskSendPropose_Jugador;
 import es.uja.ssmmaa.dots_and_boxes.interfaces.TasksJugadorSubs;
 import es.uja.ssmmaa.dots_and_boxes.tareas.TareaSubscripcionDF;
 import es.uja.ssmmaa.dots_and_boxes.interfaces.SubscripcionDF;
+import static es.uja.ssmmaa.dots_and_boxes.project.Constantes.SIZE_TABLERO;
+import es.uja.ssmmaa.dots_and_boxes.project.JuegoEncerrado.NonoTablero;
 import es.uja.ssmmaa.dots_and_boxes.tareas.TaskContractNetResponder_Jugador;
 import es.uja.ssmmaa.dots_and_boxes.util.GestorSubscripciones;
+import es.uja.ssmmaa.ontologia.quatro.Quatro;
 
 import jade.content.ContentElement;
 import jade.content.ContentManager;
@@ -79,14 +82,14 @@ import javafx.util.Pair;
  *
  * - Aceptar la participación en un juego que le proponga un AgenteMonitor.
  * Al menos debe aceptar jugar 3 juegos simultáneos.
- * 
+ *
  * - Realizar los turnos de juego que le sean solicitados para una partida
  * perteneciente a uno de sus juegos activos.
- * 
+ *
  * - Recabar información del resultado de las partidas que esté jugando.
  * De esta forma puede decidir si la partida ha concluido o no.
- * 
- * Es necesario conocer el número de juegos activos en los que está participando 
+ *
+ * Es necesario conocer el número de juegos activos en los que está participando
  * el jugador.
  * </pre>
  *
@@ -384,32 +387,6 @@ public class AgenteJugador extends Agent implements SubscripcionDF, TasksJugador
         addBehaviour(task);
     }
 
-    private void Propose_MovimientoEntregado(Partida partida, Movimiento movimiento) {
-        this.addMsgConsole("Propose_MovimientoEntregado");
-        // Contenido del mensaje representado en la ontología
-        MovimientoEntregadoLinea mel = new MovimientoEntregadoLinea();
-        mel.setPartida(partida);
-        mel.setMovimiento(movimiento);
-
-        // Creamos el mensaje a enviar
-        ACLMessage msg = new ACLMessage(ACLMessage.PROPOSE);
-        msg.setProtocol(FIPANames.InteractionProtocol.FIPA_PROPOSE);
-        msg.setSender(getAID());
-        msg.setLanguage(codec.getName());
-        msg.setOntology(ontology.getName());
-        msg.setReplyByDate(new Date(System.currentTimeMillis() + TIME_OUT));
-
-        try {
-            // Completamos en contenido del mensajes
-            this.manager.fillContent(msg, mel);
-        } catch (Codec.CodecException | OntologyException ex) {
-            this.addMsgConsole("Error en la construcción del mensaje en MovimientoEntregado \n" + ex);
-        }
-
-        TaskSendPropose_Jugador task = new TaskSendPropose_Jugador(this, msg);
-        addBehaviour(task);
-    }
-
     public MovimientoEntregadoLinea IA(PedirMovimiento pedirMovimiento) {
         Jugador jugador = pedirMovimiento.getJugadorActivo();
         AID jugadorAID = jugador.getAgenteJugador();
@@ -431,13 +408,28 @@ public class AgenteJugador extends Agent implements SubscripcionDF, TasksJugador
         int ronda = partida.getRonda();
 
         // Se recoge el juego para poder modificarlo.
+        this.addMsgConsole("idJuego: " + idJuego);
         Juego_Jugador nonoJuegoJugador = this.getJuego(idJuego);
-
-        //
+        this.addMsgConsole(nonoJuegoJugador.toString());
         Node root = new Node();
+        // Si eres la primera posición
         Pair<JuegoEncerrado.NonoPosicion, JuegoEncerrado.NonoFicha> root_p = nonoJuegoJugador.juego.nonoTablero.getRoot();
-        root.posicion = root_p.getKey();
-        root.ficha = root_p.getValue();
+        if (root_p != null) {
+            root.tablero_test = (NonoTablero) NonoTablero.clone(nonoJuegoJugador.juego.nonoTablero);
+            root.posicion = root_p.getKey();
+            root.ficha = root_p.getValue();
+        } else {
+            root.tablero_test = new JuegoEncerrado.NonoTablero(SIZE_TABLERO, SIZE_TABLERO);
+            root.posicion = new JuegoEncerrado.NonoPosicion(0, 0);
+            root.ficha = new JuegoEncerrado.NonoFicha();
+            root.ficha.setColor(Vocabulario.Color.NEGRO);
+            root.ficha.setOrientacion(Vocabulario.Orientacion.HORIZONTAL);
+            root.ficha.setJugador(new Jugador(this.getLocalName(), this.getAID()));
+            root.tablero_test.addNewPosition(root.posicion, root.ficha);
+            root.ficha.setOrientacion(Vocabulario.Orientacion.VERTICAL);
+
+        }
+        root.tablero_test.show();
 
         Pair<Integer, Node> p = Game_MiniMax.minimax(root, 1, true);
         Node best = p.getValue();

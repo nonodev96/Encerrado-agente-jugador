@@ -5,7 +5,7 @@
  */
 package es.uja.ssmmaa.dots_and_boxes.project;
 
-import es.uja.ssmmaa.ontologia.Vocabulario.TipoJuego;
+import es.uja.ssmmaa.ontologia.Vocabulario;
 import java.util.Random;
 
 /**
@@ -26,7 +26,7 @@ public interface Constantes {
     public static final int MAX_JUGADORES_PARTIDA = 2;
     public static final int SIZE_TABLERO = 8;
 
-    public static final TipoJuego MY_GAME = TipoJuego.QUATRO;
+    public static final Vocabulario.TipoJuego MY_GAME = Vocabulario.TipoJuego.ENCERRADO;
 
     public enum NonoOrientacion {
         HORIZONTAL, VERTICAL;

@@ -42,13 +42,15 @@ public class TaskContractNetResponder_Jugador extends ContractNetResponder {
 
     public TaskContractNetResponder_Jugador(Agent a, MessageTemplate mt) {
         super(a, mt);
+        this.myAgent_Jugador = (AgenteJugador) a;
     }
 
     @Override
     protected ACLMessage handleCfp(ACLMessage cfp) throws RefuseException, FailureException, NotUnderstoodException {
         ACLMessage replyPropose = cfp.createReply();
 
-        this.myAgent_Jugador.addMsgConsole("Hemos recibido una propuesta de: " + cfp.getSender().getName());
+        this.myAgent_Jugador.addMsgConsole("Hemos recibido una propuesta de: ");
+        this.myAgent_Jugador.addMsgConsole(cfp.getSender().toString());
         Action action = null;
         try {
             action = (Action) this.myAgent_Jugador.getManager().extractContent(cfp);

@@ -16,6 +16,7 @@ import static es.uja.ssmmaa.dots_and_boxes.project.Constantes.MAX_PARTIDAS;
 import static es.uja.ssmmaa.dots_and_boxes.project.Constantes.MY_GAME;
 import es.uja.ssmmaa.ontologia.encerrado.Encerrado;
 import es.uja.ssmmaa.ontologia.juegoTablero.Jugador;
+import es.uja.ssmmaa.ontologia.quatro.Quatro;
 import jade.content.lang.Codec;
 import jade.content.onto.OntologyException;
 import jade.core.Agent;
@@ -71,9 +72,10 @@ public class TaskResponsePropose_Jugador extends ProposeResponder {
         ProponerJuego propuesta_de_juego = proponerJuego;
         Juego juegoPropuesto_Juego = propuesta_de_juego.getJuego();
         Encerrado juegoPropuesto_Encerrado = (Encerrado) propuesta_de_juego.getInfoJuego();
+//        Quatro juegoPropuesto = (Quatro) propuesta_de_juego.getInfoJuego();
         Modo juegoPropuesto_Modo = propuesta_de_juego.getModo();
 
-        int numJugadores = juegoPropuesto_Encerrado.getNumJugadores();
+        int numJugadores = 2;// juegoPropuesto.getNumJugadores();
 
         int errors = 0;
         Justificacion justificacion = new Justificacion();

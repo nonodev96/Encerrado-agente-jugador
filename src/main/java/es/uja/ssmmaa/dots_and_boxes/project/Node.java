@@ -15,7 +15,7 @@ import java.util.Objects;
  */
 public class Node {
 
-    JuegoEncerrado.NonoTablero tablero_test;
+    public JuegoEncerrado.NonoTablero tablero_test;
     public JuegoEncerrado.NonoPosicion posicion;
     public JuegoEncerrado.NonoFicha ficha;
     int depth;
