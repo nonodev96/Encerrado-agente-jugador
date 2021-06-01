@@ -36,9 +36,13 @@ import es.uja.ssmmaa.dots_and_boxes.interfaces.TasksJugadorSubs;
 import es.uja.ssmmaa.dots_and_boxes.tareas.TareaSubscripcionDF;
 import es.uja.ssmmaa.dots_and_boxes.interfaces.SubscripcionDF;
 import static es.uja.ssmmaa.dots_and_boxes.project.Constantes.SIZE_TABLERO;
+import es.uja.ssmmaa.dots_and_boxes.project.JuegoEncerrado.NonoFicha;
+import es.uja.ssmmaa.dots_and_boxes.project.JuegoEncerrado.NonoPosicion;
 import es.uja.ssmmaa.dots_and_boxes.project.JuegoEncerrado.NonoTablero;
 import es.uja.ssmmaa.dots_and_boxes.tareas.TaskContractNetResponder_Jugador;
 import es.uja.ssmmaa.dots_and_boxes.util.GestorSubscripciones;
+import es.uja.ssmmaa.dots_and_boxes.util.Tuple;
+import es.uja.ssmmaa.ontologia.encerrado.Ficha;
 import es.uja.ssmmaa.ontologia.quatro.Quatro;
 
 import jade.content.ContentElement;
@@ -136,6 +140,19 @@ public class AgenteJugador extends Agent implements SubscripcionDF, TasksJugador
         this.agente_jugador_AID = getAID();
         this.UI_consola = new ConsolaJFrame(this);
 
+        //Registro de la Ontología
+        this.manager = new ContentManager();
+        try {
+            this.ontology = Vocabulario.getOntology(MY_GAME);
+            // (ContentManager)
+            this.manager = getContentManager();
+            this.manager.registerLanguage(this.codec);
+            this.manager.registerOntology(this.ontology);
+        } catch (BeanOntologyException ex) {
+            this.addMsgConsole("Error al registrar la ontología \n" + ex);
+            this.doDelete();
+        }
+
         // Registro del agente en las Páginas Amarrillas
         DFAgentDescription dfd = new DFAgentDescription();
         dfd.setName(getAID());
@@ -177,24 +194,12 @@ public class AgenteJugador extends Agent implements SubscripcionDF, TasksJugador
             }
         }
 
-        //Registro de la Ontología
-        this.manager = new ContentManager();
-        try {
-            this.ontology = Vocabulario.getOntology(MY_GAME);
-            // (ContentManager)
-            this.manager = getContentManager();
-            this.manager.registerLanguage(this.codec);
-            this.manager.registerOntology(this.ontology);
-        } catch (BeanOntologyException ex) {
-            this.addMsgConsole("Error al registrar la ontología \n" + ex);
-            this.doDelete();
-        }
-
         // Suscripción al servicio de páginas amarillas
         // Para localiar a los agentes 
         DFAgentDescription template = new DFAgentDescription();
         ServiceDescription templateSd = new ServiceDescription();
         templateSd.setType(Vocabulario.TipoServicio.JUGADOR.name());
+        templateSd.setName(MY_GAME.name());
         template.addServices(templateSd);
         addBehaviour(new TareaSubscripcionDF(this, template));
 
@@ -206,8 +211,8 @@ public class AgenteJugador extends Agent implements SubscripcionDF, TasksJugador
 //        addBehaviour(new TaskResponse_Jugador(this, template_RR, this));
         // Plantilla para responder mensajes FIPA_CONTRACT_NET
         MessageTemplate template_CN = MessageTemplate.and(
-                MessageTemplate.MatchProtocol(FIPANames.InteractionProtocol.FIPA_CONTRACT_NET),
-                MessageTemplate.MatchPerformative(ACLMessage.CFP)
+                MessageTemplate.MatchPerformative(ACLMessage.CFP),
+                MessageTemplate.MatchProtocol(FIPANames.InteractionProtocol.FIPA_CONTRACT_NET)
         );
         addBehaviour(new TaskContractNetResponder_Jugador(this, template_CN));
 
@@ -387,16 +392,17 @@ public class AgenteJugador extends Agent implements SubscripcionDF, TasksJugador
         addBehaviour(task);
     }
 
+    /**
+     * Este método solo se ejecuta si es el turno del jugador
+     *
+     * @param pedirMovimiento
+     * @return
+     */
     public MovimientoEntregadoLinea IA(PedirMovimiento pedirMovimiento) {
         Jugador jugador = pedirMovimiento.getJugadorActivo();
         AID jugadorAID = jugador.getAgenteJugador();
         String nombre = jugador.getNombre();
         boolean todoCorrecto = false;
-
-        // mi turno?
-        if (nombre.equals(this.agente_jugador_AID.getLocalName())) {
-            todoCorrecto = true;
-        }
 
         Partida partida = pedirMovimiento.getPartida();
         String idPartida = partida.getIdPartida();
@@ -408,57 +414,63 @@ public class AgenteJugador extends Agent implements SubscripcionDF, TasksJugador
         int ronda = partida.getRonda();
 
         // Se recoge el juego para poder modificarlo.
-        this.addMsgConsole("idJuego: " + idJuego);
         Juego_Jugador nonoJuegoJugador = this.getJuego(idJuego);
-        this.addMsgConsole(nonoJuegoJugador.toString());
-        Node root = new Node();
-        // Si eres la primera posición
-        Pair<JuegoEncerrado.NonoPosicion, JuegoEncerrado.NonoFicha> root_p = nonoJuegoJugador.juego.nonoTablero.getRoot();
-        if (root_p != null) {
-            root.tablero_test = (NonoTablero) NonoTablero.clone(nonoJuegoJugador.juego.nonoTablero);
-            root.posicion = root_p.getKey();
-            root.ficha = root_p.getValue();
-        } else {
-            root.tablero_test = new JuegoEncerrado.NonoTablero(SIZE_TABLERO, SIZE_TABLERO);
-            root.posicion = new JuegoEncerrado.NonoPosicion(0, 0);
-            root.ficha = new JuegoEncerrado.NonoFicha();
-            root.ficha.setColor(Vocabulario.Color.NEGRO);
-            root.ficha.setOrientacion(Vocabulario.Orientacion.HORIZONTAL);
-            root.ficha.setJugador(new Jugador(this.getLocalName(), this.getAID()));
-            root.tablero_test.addNewPosition(root.posicion, root.ficha);
-            root.ficha.setOrientacion(Vocabulario.Orientacion.VERTICAL);
+        this.addMsgConsole("Juego_Jugador: " + nonoJuegoJugador.toString());
 
+        // Si eres la primera posición
+        if (nonoJuegoJugador.juego.nonoTablero.tableroIsEmpty()) {
+            MovimientoEntregadoLinea movimientoEntregadoLinea = new MovimientoEntregadoLinea();
+
+            Posicion posicion = new Posicion();
+            posicion.setCoorX(0);
+            posicion.setCoorY(0);
+
+            Movimiento movimiento = new Movimiento();
+            movimiento.setPosicion(posicion);
+            movimiento.setFicha(new Ficha(jugador, nonoJuegoJugador.getColorFromJugador(jugador)));
+
+            movimientoEntregadoLinea.setPartida(partida);
+            movimientoEntregadoLinea.setMovimiento(movimiento);
+            movimientoEntregadoLinea.setOrientacion(Vocabulario.Orientacion.HORIZONTAL);
+
+            return movimientoEntregadoLinea;
         }
-        root.tablero_test.show();
+
+        // 
+        Node root = new Node();
+        
+        root.tablero_test = (NonoTablero) NonoTablero.clone(nonoJuegoJugador.juego.nonoTablero);
+        root.posicion = new NonoPosicion(0, 0);
+        root.ficha = new NonoFicha(jugador, nonoJuegoJugador.getColorFromJugador(jugador), Vocabulario.Orientacion.HORIZONTAL);
+        
+        ArrayList<Tuple> root_p = root.tablero_test.childOfNode(root, 1);
+
+        if (root_p != null) {
+            root.posicion = root_p.get(0).getPosicion();
+            root.ficha = root_p.get(0).getFicha();
+        }
 
         Pair<Integer, Node> p = Game_MiniMax.minimax(root, 1, true);
-        Node best = p.getValue();
-        nonoJuegoJugador.juego.nonoTablero.addNewPosition(best.posicion, best.ficha);
+//        Node best = p.getValue();
+        Tuple best = p.getValue().next;
 
-        if (nonoJuegoJugador.juego.nonoTablero.checkAllWalls(best.posicion)) {
-            nonoJuegoJugador.points += p.getKey();
-
-        }
-        //
-
+        // En caso de movimiento valido
         MovimientoEntregadoLinea movimientoEntregadoLinea = new MovimientoEntregadoLinea();
-        movimientoEntregadoLinea.setPartida(partida);
-        Movimiento movimiento = new Movimiento();
-        movimiento.setFicha(best.ficha);
 
         Posicion posicion = new Posicion();
         posicion.setCoorX(best.posicion.getCoorX());
         posicion.setCoorY(best.posicion.getCoorY());
 
+        Movimiento movimiento = new Movimiento();
+
+        movimiento.setFicha(new Ficha(jugador, nonoJuegoJugador.getColorFromJugador(jugador)));
         movimiento.setPosicion(posicion);
+
+        movimientoEntregadoLinea.setPartida(partida);
         movimientoEntregadoLinea.setMovimiento(movimiento);
         movimientoEntregadoLinea.setOrientacion(best.ficha.getOrientacion());
 
-        if (todoCorrecto) {
-            return movimientoEntregadoLinea;
-        } else {
-            return null;
-        }
+        return movimientoEntregadoLinea;
     }
 
     public void CrearJuego(Juego juegoPropuesto_Juego, Encerrado juegoPropuesto_Encerrado, Vocabulario.Modo juegoPropuesto_Modo) {
@@ -470,7 +482,7 @@ public class AgenteJugador extends Agent implements SubscripcionDF, TasksJugador
 
         Jugador jugador = new Jugador(this.getAID().getLocalName(), this.getAID());
 
-        Juego_Jugador juego = new Juego_Jugador(idJuego, jugador, Vocabulario.Color.NEGRO, filas, columnas);
+        Juego_Jugador juego = new Juego_Jugador(idJuego, jugador, filas, columnas);
         juego.tipoJuego = tipoJuego;
         juego.modo = juegoPropuesto_Modo;
         juego.juego_UI.setVisible(true);

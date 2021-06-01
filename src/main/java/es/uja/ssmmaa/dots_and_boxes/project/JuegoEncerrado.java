@@ -41,7 +41,7 @@ public class JuegoEncerrado {
 
     public static class NonoTablero {
 
-        private HashMap<NonoPosicion, NonoFicha[]> positions;
+        public HashMap<NonoPosicion, NonoFicha[]> positions;
         public int SIZE_X;
         public int SIZE_Y;
 
@@ -320,45 +320,49 @@ public class JuegoEncerrado {
          * El 0 es la horizontal
          * El 1 es la vertical
          * </pre>
+         *
+         * @return
          */
-        public void show() {
-            System.out.println("====y0==y1==y2==y3==y4==y5==y6==y7==");
-            System.out.println("|                                  |");
+        public String show() {
+            String toReturn = "";
+            toReturn += ("====y0==y1==y2==y3==y4==y5==y6==y7==\n");
+            toReturn += ("|                                  |\n");
             for (int x = 0; x < SIZE_X; x++) {
 
                 for (int parity = 0; parity < 2; parity++) {
                     if (parity == 0) {
-                        System.out.print("|x" + x);
+                        toReturn += ("|x" + x);
                     } else {
-                        System.out.print("|  ");
+                        toReturn += ("|  ");
                     }
                     for (int y = 0; y < SIZE_Y; y++) {
                         NonoPosicion test = new NonoPosicion(x, y);
                         NonoFicha[] o = this.positions.getOrDefault(test, new NonoFicha[2]);
 
                         if (parity == 0) {
-                            System.out.print(" " + x + "" + y);
+                            toReturn += (" " + x + "" + y);
                         } else {
-                            System.out.print(" ");
+                            toReturn += (" ");
                         }
                         if (o[parity] == null) {
-                            System.out.print(" ");
+                            toReturn += (" ");
                         } else {
                             if (o[parity].getOrientacion() == Orientacion.HORIZONTAL && parity == 0) {
-                                System.out.print("-");
+                                toReturn += ("-");
                             } else if (o[parity].getOrientacion() == Orientacion.VERTICAL && parity == 1) {
-                                System.out.print("|");
+                                toReturn += ("|");
                             }
                         }
                         if (parity == 1) {
-                            System.out.print("  ");
+                            toReturn += ("  ");
                         }
 
                     }
-                    System.out.println("|");
+                    toReturn += ("|\n");
                 }
             }
-            System.out.println("====y0==y1==y2==y3==y4==y5==y6==y7==");
+            toReturn += ("====y0==y1==y2==y3==y4==y5==y6==y7==\n");
+            return toReturn;
         }
 
         public boolean checkIfExist(NonoPosicion pos, Orientacion ori) {
@@ -377,6 +381,15 @@ public class JuegoEncerrado {
             return false;
         }
 
+        /**
+         *
+         *      * - *
+         * | |
+         *      * -
+         *
+         * @param pos
+         * @return
+         */
         public boolean checkAllWalls(NonoPosicion pos) {
             int[] checkPositionsX = new int[]{+0, +1, +0};
             int[] checkPositionsY = new int[]{+0, +0, +1};
@@ -485,10 +498,17 @@ public class JuegoEncerrado {
             return copy;
         }
 
+        public boolean tableroIsEmpty() {
+            return this.positions.isEmpty();
+        }
+
         public Pair<NonoPosicion, NonoFicha> getRoot() {
             for (Map.Entry<NonoPosicion, NonoFicha[]> entry : this.positions.entrySet()) {
-                if (entry.getValue() != null) {
-                    return new Pair(entry.getKey(), entry.getValue());
+                if (entry.getValue()[NonoOrientacion.HORIZONTAL.ordinal()] != null) {
+                    return new Pair(entry.getKey(), new NonoFicha(null, null, Orientacion.VERTICAL));
+                }
+                if (entry.getValue()[NonoOrientacion.VERTICAL.ordinal()] != null) {
+                    return new Pair(entry.getKey(), new NonoFicha(null, null, Orientacion.HORIZONTAL));
                 }
             }
             return null;

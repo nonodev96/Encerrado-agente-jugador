@@ -55,7 +55,7 @@ public class Game_MiniMax {
         if (Game_MiniMax.DEBUG) {
             System.out.println("depth: " + depth + " childs: " + childOfNode.size());
             System.out.println(Arrays.toString(childOfNode.toArray()));
-            node.tablero_test.show();
+            System.out.println(node.tablero_test.show());
         }
         if (maximizingPlayer) {
             value = Integer.MIN_VALUE;
@@ -81,7 +81,7 @@ public class Game_MiniMax {
                     v_node.next = new Tuple(child.posicion, child.ficha);
                 }
                 if (Game_MiniMax.DEBUG) {
-                    System.out.println(String.format("MAX depth(%2d) %s %10s %16s", depth, p.getValue(), ">-> old: " + value, "new: " + p.getKey()));
+                    System.out.println(String.format("MIN depth(%2d) %s %10s %16s", depth, p.getValue(), ">-> old: " + value, "new: " + p.getKey()));
                 }
             }
             return new Pair(value, v_node);

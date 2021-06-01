@@ -24,12 +24,19 @@ public class Encerrado_UI extends javax.swing.JPanel {
     public Encerrado_UI() {
         initComponents();
         this.juegoEncerrado = new JuegoEncerrado();
+//        juegoEncerrado.nonoTablero.addNewPosition(new JuegoEncerrado.NonoPosicion(0, 0), new JuegoEncerrado.NonoFicha(null, Vocabulario.Color.ROJO, Vocabulario.Orientacion.HORIZONTAL));
+//        juegoEncerrado.nonoTablero.addNewPosition(new JuegoEncerrado.NonoPosicion(0, 0), new JuegoEncerrado.NonoFicha(null, Vocabulario.Color.NEGRO, Vocabulario.Orientacion.VERTICAL));
+//        juegoEncerrado.nonoTablero.addNewPosition(new JuegoEncerrado.NonoPosicion(0, 1), new JuegoEncerrado.NonoFicha(null, Vocabulario.Color.ROJO, Vocabulario.Orientacion.VERTICAL));
+//        juegoEncerrado.nonoTablero.addNewPosition(new JuegoEncerrado.NonoPosicion(0, 1), new JuegoEncerrado.NonoFicha(null, Vocabulario.Color.NEGRO, Vocabulario.Orientacion.HORIZONTAL));
+//        juegoEncerrado.nonoTablero.addNewPosition(new JuegoEncerrado.NonoPosicion(3, 2), new JuegoEncerrado.NonoFicha(null, Vocabulario.Color.NEGRO, Vocabulario.Orientacion.HORIZONTAL));
+//        juegoEncerrado.nonoTablero.addNewPosition(new JuegoEncerrado.NonoPosicion(3, 2), new JuegoEncerrado.NonoFicha(null, Vocabulario.Color.NEGRO, Vocabulario.Orientacion.VERTICAL));
+
         NonoPosicion nonoPosicion = new JuegoEncerrado.NonoPosicion(3, 3);
         NonoFicha nonoFicha = new JuegoEncerrado.NonoFicha();
         nonoFicha.setColor(Vocabulario.Color.ROJO);
         nonoFicha.setOrientacion(Vocabulario.Orientacion.HORIZONTAL);
         //this.juegoEncerrado.nonoTablero.addNewPosition(nonoPosicion, nonoFicha);
-        
+
         this.setVisible(true);
         this.setSize(new Dimension(this.getWidth(), this.getHeight()));
     }
@@ -46,17 +53,18 @@ public class Encerrado_UI extends javax.swing.JPanel {
         super.paint(g);
 
         int translate = 5;
-        int size_x = this.getWidth() / (juegoEncerrado.nonoTablero.SIZE_X + 1);
-        int size_y = this.getHeight() / (juegoEncerrado.nonoTablero.SIZE_Y + 1);
+        int size_x = this.getHeight() / (juegoEncerrado.nonoTablero.SIZE_X + 1);
+        int size_y = this.getWidth() / (juegoEncerrado.nonoTablero.SIZE_Y + 1);
         for (int x = 0; x < juegoEncerrado.nonoTablero.SIZE_X; x++) {
             for (int y = 0; y < juegoEncerrado.nonoTablero.SIZE_Y; y++) {
-                int xdraw = (x * size_x) + size_x;
-                int ydraw = (y * size_y) + size_y;
+                int xdraw = (y * size_y) + size_y;
+                int ydraw = (x * size_x) + size_x;
                 g.setColor(Color.BLACK);
                 g.drawOval(xdraw, ydraw, 10, 10);
 
                 JuegoEncerrado.NonoPosicion pos = new JuegoEncerrado.NonoPosicion(x, y);
                 JuegoEncerrado.NonoFicha[] ficha = juegoEncerrado.nonoTablero.getPosicion(pos);
+                g.drawString(x + " " + y, xdraw + 15, ydraw);
 
                 if (juegoEncerrado.nonoTablero.checkIfExist(pos, Vocabulario.Orientacion.HORIZONTAL)) {
                     g.setColor(Encerrado_UI.translateColor(ficha[0].getColor()));
@@ -112,16 +120,17 @@ public class Encerrado_UI extends javax.swing.JPanel {
 
         setMaximumSize(new java.awt.Dimension(400, 300));
         setMinimumSize(new java.awt.Dimension(100, 100));
+        setPreferredSize(new java.awt.Dimension(250, 250));
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
         this.setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 400, Short.MAX_VALUE)
+            .addGap(0, 304, Short.MAX_VALUE)
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 300, Short.MAX_VALUE)
+            .addGap(0, 344, Short.MAX_VALUE)
         );
     }// </editor-fold>//GEN-END:initComponents
 

@@ -19,7 +19,7 @@ public class Node {
     public JuegoEncerrado.NonoPosicion posicion;
     public JuegoEncerrado.NonoFicha ficha;
     int depth;
-    Tuple next;
+    public Tuple next;
 
     public Node() {
 //        this.tablero_test = new JuegoEncerrado.NonoTablero();

@@ -7,6 +7,12 @@ Hay una serie de scripts con los que lanzar cada configuración, pero recomiendo
 usar el que proporciona netbeans, ya que es más sencillo lanzar distintas 
 configuraciones.
 
+Estos permiten configurar entre `2` o `3` players.
+
+![UI 3 players](assets/InterfazJugador.png)
+
+
+
 # Juego_Jugador
 
 Representa y encapsula todos los juegos a los que está jugando un jugador.
@@ -68,7 +74,7 @@ De esta forma solo almacenamos dos fichas (horizontal y vertical) en una posici�
      |
 ```
 
-### `NonoPosicion.java`
+### NonoPosicion.java
 
 Representa una posición y extiende de la clase Posición del Vocabulario de 
 OntoJuegos, además implementa la interfaz `Cloneable` para poder copiar un 
@@ -77,7 +83,7 @@ objet.
 Se ha creado por implementar el método de `hashCode()` y poder usar el tablero 
 con el mapa y la clave (x, y).
 
-### `NonoFicha.java`
+### NonoFicha.java
 
 Representa una ficha y extiende de la clase Ficha de Encerrado del Vocabulario 
 de OntoJuegos, además también implementa la interfaz `Cloneable`.

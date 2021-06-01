@@ -71,11 +71,11 @@ public class TaskResponsePropose_Jugador extends ProposeResponder {
         // ===================================================================
         ProponerJuego propuesta_de_juego = proponerJuego;
         Juego juegoPropuesto_Juego = propuesta_de_juego.getJuego();
-        Encerrado juegoPropuesto_Encerrado = (Encerrado) propuesta_de_juego.getInfoJuego();
+        Encerrado juegoPropuesto = (Encerrado) propuesta_de_juego.getInfoJuego();
 //        Quatro juegoPropuesto = (Quatro) propuesta_de_juego.getInfoJuego();
         Modo juegoPropuesto_Modo = propuesta_de_juego.getModo();
 
-        int numJugadores = 2;// juegoPropuesto.getNumJugadores();
+        int numJugadores = juegoPropuesto.getNumJugadores();
 
         int errors = 0;
         Justificacion justificacion = new Justificacion();
@@ -131,7 +131,7 @@ public class TaskResponsePropose_Jugador extends ProposeResponder {
             }
 
             // Creamos el juego
-            this.myAgent_Jugador.CrearJuego(juegoPropuesto_Juego, juegoPropuesto_Encerrado, juegoPropuesto_Modo);
+            this.myAgent_Jugador.CrearJuego(juegoPropuesto_Juego, juegoPropuesto, juegoPropuesto_Modo);
         }
 
         return reply;

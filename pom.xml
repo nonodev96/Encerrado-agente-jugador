@@ -75,7 +75,7 @@
                     </descriptorRefs>           
                     <archive>
                         <manifest>
-                            <mainClass>jade.Boot</mainClass>
+                            <mainClass>jade.MicroBoot</mainClass>
                         </manifest>
                     </archive>
                 </configuration>
